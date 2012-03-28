@@ -1,17 +1,17 @@
-#ifndef __GRAHAMSCAN_CPP__
-#define __GRAHAMSCAN_CPP__
-
 #include <stack>
 #include <list>
 #include <cmath>
-#include "gcfunc.cpp"
 #include <algorithm>
+#include "Point2D.h"
 
 #define EPS 0.000001
 
 //Variable global
 Point2D minimal;
 
+extern float anglePoint2D(Point2D & p1, Point2D & p2);
+extern bool comparePoint2DMinimalLeftDown(Point2D & p1, Point2D & p2);
+extern bool leftTurn(Point2D &p1, Point2D &p2, Point2D &p3);
 
 bool comparePoint2DPolar(Point2D & p1, Point2D &p2){
   return (anglePoint2D(p1, minimal) >= anglePoint2D(p2, minimal));
@@ -88,4 +88,3 @@ void grahamScan(std::list<Point2D> & Q, std::stack<Point2D> & S){
   }
 }
 
-#endif

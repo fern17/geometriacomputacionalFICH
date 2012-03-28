@@ -1,5 +1,5 @@
-#include "grahamscan.cpp"
 #include <list>
+#include <stack>
 #include "Point2D.h"
 #include <iostream>
 
@@ -19,6 +19,8 @@ void printStack(std::stack<Point2D> &S){
     ss.pop();
   }
 }
+
+extern void grahamScan(std::list<Point2D> & Q, std::stack<Point2D> & S);
 
 int main(){
   std::list<Point2D> points;

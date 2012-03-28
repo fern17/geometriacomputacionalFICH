@@ -1,6 +1,3 @@
-#ifndef __GCFUNC_CPP__
-#define __GCFUNC_CPP__
-
 #include <cmath>
 #include "Point2D.h"
 
@@ -49,4 +46,3 @@ bool comparePoint2DMinimalLeftDown(Point2D & p1, Point2D & p2){
   else return false;
 }
 
-#endif
