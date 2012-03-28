@@ -5,7 +5,6 @@
 #include <list>
 #include <cmath>
 #include "gcfunc.cpp"
-#include "Point2D.h"
 #include <algorithm>
 
 #define EPS 0.000001
@@ -16,7 +15,6 @@ Point2D minimal;
 
 bool comparePoint2DPolar(Point2D & p1, Point2D &p2){
   return (anglePoint2D(p1, minimal) >= anglePoint2D(p2, minimal));
-
 }
 
 //Retorna el tope de la pila
@@ -34,11 +32,11 @@ Point2D nextToTop(std::stack<Point2D> &S){
 }
 
 Point2D encontrarMinimal(std::list<Point2D> &Q){
-  std::list<Point2d>::iterator it = Q.begin();
+  std::list<Point2D>::iterator it = Q.begin();
   Point2D minimo = *it;
-  while(it != Q.end(){
+  while(it != Q.end()){
     Point2D candidato = *it;
-    if(comparePoint2dMinimalLeftDown(candidato, minimo)){
+    if(comparePoint2DMinimalLeftDown(candidato, minimo)){
       minimo = candidato;
     }
     it++;
@@ -47,8 +45,8 @@ Point2D encontrarMinimal(std::list<Point2D> &Q){
 }
 
 void borrarMinimal(std::list<Point2D> &Q, Point2D & minimo){
-  std::list<Point2d>::iterator it = Q.begin();
-  while(it != Q.end(){
+  std::list<Point2D>::iterator it = Q.begin();
+  while(it != Q.end()){
     Point2D candidato = *it;
     if(candidato == minimo){
       Q.erase(it);
@@ -65,7 +63,7 @@ void grahamScan(std::list<Point2D> & Q, std::stack<Point2D> & S){
   minimal = encontrarMinimal(Q); //Encuentra el minimal izquierda abajo
   borrarMinimal(Q, minimal);//Borra el minimal de la cola 
   
-  sort(Q.begin(), Q.end(), comparePoint2DPolar); //ordena en forma polar
+  Q.sort(comparePoint2DPolar); //ordena en forma polar
   
   //Ubica las 3 primeras monedas
   S.push(minimal); //Agrega el primero que es el minimal
