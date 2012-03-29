@@ -1,6 +1,7 @@
 #include <stack>
 #include <list>
 #include <cmath>
+#include <iostream>
 #include <algorithm>
 #include "Point2D.h"
 
@@ -12,6 +13,7 @@ Point2D minimal;
 extern float anglePoint2D(Point2D & p1, Point2D & p2);
 extern bool comparePoint2DMinimalLeftDown(Point2D & p1, Point2D & p2);
 extern bool leftTurn(Point2D &p1, Point2D &p2, Point2D &p3);
+extern void printList(std::list<Point2D> &Q);
 
 bool comparePoint2DPolar(Point2D & p1, Point2D &p2){
   return (anglePoint2D(p1, minimal) >= anglePoint2D(p2, minimal));
@@ -59,11 +61,13 @@ void borrarMinimal(std::list<Point2D> &Q, Point2D & minimo){
 
 //Realiza el algoritmo de Graham de las 3 monedas para hallar el Convex Hull S de una lista de Puntos Q.
 void grahamScan(std::list<Point2D> & Q, std::stack<Point2D> & S){
-  
   minimal = encontrarMinimal(Q); //Encuentra el minimal izquierda abajo
+  //std::cout<<"Minimal: "; minimal.print();
   borrarMinimal(Q, minimal);//Borra el minimal de la cola 
   
   Q.sort(comparePoint2DPolar); //ordena en forma polar
+  std::cout<<"Lista ordenada\n"; 
+  printList(Q);
   
   //Ubica las 3 primeras monedas
   S.push(minimal); //Agrega el primero que es el minimal
