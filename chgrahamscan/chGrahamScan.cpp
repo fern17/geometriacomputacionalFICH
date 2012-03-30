@@ -25,7 +25,7 @@ void leer(std::list<Point2D> &Q, unsigned int n){
 
 void printStack(std::stack<Point2D> &S){
   std::stack<Point2D> ss(S);
-  std::cout<<"Pila resultado:\n";
+  std::cout<<"Pila:\n";
   while(!ss.empty()){
     ss.top().print();
     ss.pop();

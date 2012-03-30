@@ -1,0 +1,1 @@
+g++ Point2D.cpp gcfunc.cpp chGrahamScanGrafico.cpp grahamscan.cpp -lGL -lGLU -lglut -o chgrahamscangrafico.bin && ./grahamscangrafico.bin < input.txt
