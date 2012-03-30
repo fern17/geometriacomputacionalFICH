@@ -9,7 +9,7 @@ float modulo(Point2D & p1){
 }
 
 float dotProduct(Point2D & p1, Point2D & p2){
-  return p1.x * p2.x + p1.y + p2.y;
+  return p1.x*p2.x + p1.y*p2.y;
 }
 
 //Retorna true si v1==v2 segun una tolerancia EPS definida arriba.
@@ -21,8 +21,21 @@ bool compareEqualFloat(float v1, float v2){
 float anglePoint2D(Point2D & p1, Point2D & p2){
   float modp1 = modulo(p1);
   float modp2 = modulo(p2);
-  float dotprod = dotProduct(p1,p2);
-  float angle = std::acos(dotprod/(modp1*modp2));
+  float angle = 0.0;
+
+  if(compareEqualFloat(modp1, modp2) == false){ //si los dos son coincidentes, devuelvo 0.0
+    if(compareEqualFloat(modp1,0)){ //modulo 0 del primero
+        angle = std::acos(p2.y/modp2);
+    } 
+    else if (compareEqualFloat(modp2,0)){ //modulo 0 del segundo
+      angle = std::acos(p1.y/modp1);
+    }
+    else {
+      float dotprod = dotProduct(p1,p2);
+      angle = std::acos(dotprod/(modp1*modp2));
+    } 
+  }
+  
   return angle;
 }
 

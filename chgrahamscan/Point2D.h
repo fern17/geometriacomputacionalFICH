@@ -9,6 +9,8 @@ public:
   Point2D(float _x, float _y);
   void print();
   bool operator==(Point2D P);
+  bool operator<(Point2D P);
+  Point2D  operator-(Point2D P);
 };
 
 #endif
