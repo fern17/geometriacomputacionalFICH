@@ -1,5 +1,6 @@
 #include <list>
 #include <stack>
+#include <utility>
 #include "Point2D.h"
 #include <iostream>
 
@@ -33,6 +34,7 @@ void printStack(std::stack<Point2D> &S){
 }
 
 extern void grahamScan(std::list<Point2D> & Q, std::stack<Point2D> & S);
+extern void farthestPair(std::list<Point2D> & Q, std::pair<Point2D, Point2D> & FP, float & maxDistance);
 
 int main(){
 //  std::list<Point2D> points;
@@ -46,6 +48,16 @@ int main(){
     
     grahamScan(Q,S);
     printStack(S);
+    std::stack<Point2D> ss(S);
+    std::list<Point2D> listaS;
+    while(!ss.empty()){
+        listaS.push_back(ss.top());
+        ss.pop();
+    }
+    std::pair<Point2D, Point2D> fPair;
+    float maxDist;
+    farthestPair(listaS, fPair, maxDist);
+    std::cout<<"Max Distance: "<<maxDist<<"\n";
     
     std::cout<<"----------"<<std::endl;
   }
