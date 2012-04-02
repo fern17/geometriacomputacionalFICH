@@ -48,6 +48,7 @@ int main(){
     
     grahamScan(Q,S);
     printStack(S);
+    
     std::stack<Point2D> ss(S);
     std::list<Point2D> listaS;
     while(!ss.empty()){
@@ -57,7 +58,7 @@ int main(){
     std::pair<Point2D, Point2D> fPair;
     float maxDist;
     farthestPair(listaS, fPair, maxDist);
-    std::cout<<"Max Distance: "<<maxDist<<"\n";
+    std::cout<<"Distancia Maxima: "<<maxDist<<"\n";
     
     std::cout<<"----------"<<std::endl;
   }

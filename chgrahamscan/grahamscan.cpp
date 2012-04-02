@@ -83,8 +83,8 @@ void eliminarColineales(std::list<Point2D> &Q){
     q++;
     while(p != Q.end() and q != Q.end()){
         while(compareEqualAngle(*p, *q)){
-            p = Q.erase(p);
-            q = p;
+            q = Q.erase(q);
+            p = q;
             q++;
         }
         p++; q++;

@@ -83,8 +83,8 @@ void eliminarColineales(std::list<Point2D> &Q){
     q++;
     while(p != Q.end() and q != Q.end()){
         while(compareEqualAngle(*p, *q)){
-            p = Q.erase(p);
-            q = p;
+            q = Q.erase(q);
+            p = q;
             q++;
         }
         p++; q++;
@@ -96,14 +96,16 @@ void eliminarColineales(std::list<Point2D> &Q){
 //Devuelve una Pila con el resultado clockwise.
 void grahamScan(std::list<Point2D> & Q, std::stack<Point2D> & S){
   minimal = encontrarMinimal(Q); //Encuentra el minimal izquierda abajo
- // std::cout<<"Minimal: "; minimal.print();
+  //std::cout<<"Minimal: "; minimal.print();
   
   borrarMinimal(Q, minimal);//Borra el minimal de la cola 
 
   Q.sort(comparePoint2DPolar); //ordena en forma polar
-//  std::cout<<"Lista ordenada\n"; printList(Q);
+ // std::cout<<"Lista ordenada\n"; printList(Q);
 //  Q.reverse();
   eliminarColineales(Q);
+
+  std::cout<<"Lista ordenada\n"; printList(Q);
   //Ubica las 3 primeras monedas
   S.push(minimal); //Agrega el primero que es el minimal
   

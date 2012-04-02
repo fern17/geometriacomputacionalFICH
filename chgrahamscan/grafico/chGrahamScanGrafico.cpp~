@@ -52,9 +52,9 @@ void display_cb() {
     glEnd();
     glColor3f(0.5,0.5,1);
     glLineWidth(4);
-    glBegin(GL_LINE_STRIP);
-        glVertex2f(fPair.first.x, fPair.first.y);
-        glVertex2f(fPair.second.x, fPair.second.y);
+    glBegin(GL_LINE)
+	glVertex2f(fPair.first.x, fPair.first.y);
+	glVertex2f(fPair.second.x, fPair.second.y);
     glEnd();
     glutSwapBuffers();
 }
@@ -115,9 +115,7 @@ void play(){
     }
     
     farthestPair(listaS, fPair, maxDist);
-    std::cout<<"Distancia Maxima: "<<maxDist<<"\n";
-    fPair.first.print();
-    fPair.second.print();
+    std::cout<<"Max Distance: "<<maxDist<<"\n";
 }
 
 int main(int argc, char **argv){
