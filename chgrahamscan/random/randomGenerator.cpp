@@ -21,7 +21,7 @@ void randomGenerator(unsigned int w, unsigned int h, unsigned int n){
 int main(){
     unsigned int w = 640;
     unsigned int h = 480;
-    unsigned int n = 50;
+    unsigned int n = 150;
     randomGenerator(w, h, n);
     return 0;
 }

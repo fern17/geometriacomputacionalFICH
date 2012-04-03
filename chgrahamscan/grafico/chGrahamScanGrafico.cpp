@@ -100,6 +100,7 @@ void printStack(std::stack<Point2D> &S){
 
 extern void grahamScan(std::list<Point2D> & Q, std::stack<Point2D> & S);
 extern void farthestPair(std::list<Point2D> & Q, std::pair<Point2D, Point2D> & FP, float & maxDistance);
+void farthestn2(std::list<Point2D> &Q, std::pair<Point2D, Point2D> &FP, float &maxDistance);
 
 void play(){
     int n;
@@ -114,7 +115,14 @@ void play(){
         ss.pop();
     }
     
+    std::cout<<"Rotating Calipers (N):\n";
     farthestPair(listaS, fPair, maxDist);
+    std::cout<<"Distancia Maxima: "<<maxDist<<"\n";
+    fPair.first.print();
+    fPair.second.print();
+    
+    std::cout<<"N2:\n";
+    farthestn2(listaS, fPair, maxDist);
     std::cout<<"Distancia Maxima: "<<maxDist<<"\n";
     fPair.first.print();
     fPair.second.print();
