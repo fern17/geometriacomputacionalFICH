@@ -1,19 +1,23 @@
 #include <list>
 #include "Point2D.h"
 #include <utility>
-
+#include <iostream>
 extern float dist(Point2D &, Point2D &);
+extern void printList(std::list<Point2D> &Q);
 
 float distancePair(std::pair<Point2D, Point2D> &pair){
     return dist(pair.first, pair.second);
 }
 
 void farthestPair(std::list<Point2D> &Q, std::pair<Point2D, Point2D> &FP, float &maxDistance){
+    printList(Q);
     std::list<Point2D>::iterator p = Q.begin();
     std::list<Point2D>::iterator q = p;
     std::list<Point2D>::iterator r = p;
     
+    int count = 0; //cuenta la cantidad de iteraciones que hago en el algoritmo. Deberian ser maximo cN
     std::pair<Point2D, Point2D> farthest;
+    
     farthest.first = *p;
     farthest.second = *p; //el par mas lejano inicial es la distancia entre p y p;
     float currentDistance = 0.0; //inicializa en 0 la distancia
@@ -45,6 +49,7 @@ void farthestPair(std::list<Point2D> &Q, std::pair<Point2D, Point2D> &FP, float 
 
         while(true){
             Point2D Dprev = *r;
+            count++; //iteraciones Mas Mas
             r++;
             if(r == Q.end()) break;
             //if(r == Q.end()) r = Q.begin(); //muevo r al principio si me paso
@@ -64,4 +69,5 @@ void farthestPair(std::list<Point2D> &Q, std::pair<Point2D, Point2D> &FP, float 
     }
     FP = farthest;
     maxDistance = currentDistance;
+    std::cout<<"Iteraciones hechas para encontrar Farthest Pair: "<<count<<std::endl; //
 }

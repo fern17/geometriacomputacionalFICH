@@ -78,17 +78,17 @@ void borrarMinimal(std::list<Point2D> &Q, Point2D & minimo){
 //Verifica si hay puntos colineales y los borra, dejando solo el mas lejano 
 // (la lista debe venir ordenada en forma polar)
 void eliminarColineales(std::list<Point2D> &Q){
-    std::list<Point2D>::iterator p = Q.begin();
-    std::list<Point2D>::iterator q = p;
-    q++;
-    while(p != Q.end() and q != Q.end()){
-        while(compareEqualAngle(*p, *q)){
-            q = Q.erase(q);
-            p = q;
-            q++;
-        }
-        p++; q++;
+  std::list<Point2D>::iterator p = Q.begin();
+  std::list<Point2D>::iterator q = p;
+  q++;
+  while(p != Q.end() and q != Q.end()){
+    while(p != Q.end() and q != Q.end() and compareEqualAngle(*p, *q)){
+      p = Q.erase(p);
+      q++;
     }
+    if(q == Q.end() or p == Q.end()) break;
+    p++; q++;
+  }
 }
 
 
