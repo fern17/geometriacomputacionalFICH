@@ -65,34 +65,32 @@ void farthestPair(std::list<Point2D> &Q, std::pair<Point2D, Point2D> &FP, float 
     while(p != Q.end()){
         Point2D C = *p;//C es ahora el que esta luego de A
         
-        float distancePrev = dist(farthest.second, C);
-        if(distancePrev > currentDistance){
-            farthest.first = C; //reemplazo el first, que antes era A, por C
-            currentDistance = distancePrev;
-        } 
-        //else { distancePrev = currentDistance;}
-        //std::cout<<"Farthest: \n"; farthest.first.print(); farthest.second.print();
+        Point2D Dprev = *r;
 
+        float distancePrev = dist(Dprev, C);
+        
         while(true){
             count++; //iteraciones Mas Mas
             
-            Point2D Dprev = *r;
             r++;
             
-            if(r == Q.end()) break;
+            if(r == Q.end()) r = Q.begin();
             
             Point2D D = *r;
+
             float distanceCD = dist(C, D); //la distancia entre CD es mayor o igual que CB
             
             if(distanceCD < distancePrev){ //la distancia empieza a bajar, entonces el anterior era el mas lejano
                 //currentDistance = distancePrev;
                 r--;
                 break;
-            } else {
+            } else if(distanceCD > currentDistance){
                 farthest.first = C;
                 farthest.second = D;
                 distancePrev = distanceCD;
                 currentDistance = distanceCD;
+            } else {
+                distancePrev = distanceCD;
             }
         }
         p++;

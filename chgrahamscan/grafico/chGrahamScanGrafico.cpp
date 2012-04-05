@@ -122,7 +122,7 @@ void play(){
     fPair.second.print();
     
     std::cout<<"N2:\n";
-    farthestn2(listaS, fPair, maxDist);
+    //farthestn2(listaS, fPair, maxDist);
     std::cout<<"Distancia Maxima: "<<maxDist<<"\n";
     fPair.first.print();
     fPair.second.print();
