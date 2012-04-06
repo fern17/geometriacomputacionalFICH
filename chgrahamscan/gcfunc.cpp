@@ -1,5 +1,6 @@
 #include <cmath>
 #include "Point2D.h"
+#include "Point3D.h"
 
 #define EPS 0.000001
 
@@ -10,6 +11,9 @@ float dist(Point2D &p1, Point2D &p2){
     return distance;
 }
 
+float modulo(Point3D & p1){
+    return sqrt(p1.x*p1.x + p1.y*p1.y + p1.z*p1.z);
+}
 
 float modulo(Point2D & p1){
     return sqrt(p1.x*p1.x + p1.y*p1.y);
@@ -17,6 +21,24 @@ float modulo(Point2D & p1){
 
 float dotProduct(Point2D & p1, Point2D & p2){
   return p1.x*p2.x + p1.y*p2.y;
+}
+
+float dotProduct(Point3D & p1, Point3D & p2){
+  return p1.x*p2.x + p1.y*p2.y + p1.z*p2.z;
+}
+
+Point3D crossProduct(Point3D & p1, Point3D & p2){
+    Point3D retval;
+    retval.x = p1.y*p2.z - p1.z*p2.y;
+    retval.y = -(p1.x*p2.z - p1.z*p2.x);
+    retval.z = p1.x*p2.y - p1.y*p2.x;
+    return retval;
+}
+
+//Computa la coordenada Z del vector resultado, que es lo que interesa
+float crossProduct(Point2D & p1, Point2D & p2){
+    float retval = p1.x*p2.y - p1.y*p2.x;
+    return retval;
 }
 
 //Retorna true si v1==v2 segun una tolerancia EPS definida arriba.
