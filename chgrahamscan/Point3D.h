@@ -6,8 +6,9 @@ class Point3D{
 public:
   float x;
   float y;
+  float z;
   Point3D();
-  Point3D(float _x, float _y);
+  Point3D(float _x, float _y, float _z);
   Point3D(Point2D P);
   void print();
   bool operator==(Point3D P);

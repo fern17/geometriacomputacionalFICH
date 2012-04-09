@@ -3,24 +3,41 @@
 #include "Point3D.h"
 #include <utility>
 #include <iostream>
+#include <vector>
+#include <cmath>
+#include <algorithm>
 
-extern float dist(Point2D &, Point2D &);
-extern void printList(std::list<Point2D> &Q);
+extern bool compareEqualFloat(float v1, float v2);
+extern float dotProduct(Point2D & p1, Point2D & p2);
+extern float crossProduct(Point2D & p1, Point2D & p2);
+extern float perpDist(float x1, float y1, float a2, float b2, float c2);
 
 
-unsigned int next(unsigned int idx, unsigned int n){
-    if(idx+1 == n) 
-        return 0;
-    else
-        return idx+1;
+float perpDistWrapper(float x1, float y1, float x2, float y2, float slope){
+    float a2 = -slope;
+    float b2 = 1;
+    float c2 = y1 - slope*x1;
+    return perpDist(x1, y1, a2, b2, c2);
 }
+//devuelve el siguiente valor y MUEVE el indice
+/*unsigned int next(unsigned int &idx, unsigned int n){
+    if(idx+1 >= n){ 
+        idx = 0;
+        return 0;
+    }
+    else{
+        idx++;
+        return idx+1;
+    }
+}*/
 
-void minimunAreaRect(std::list<Point2D> & Q, float & area, Point2D & support, float & resultSlope){
+void minimumAreaRect(std::list<Point2D> & Q, float & area, Point2D & support, float & resultSlope){
     unsigned int n = Q.size();
     unsigned int i = 0;
     unsigned int j = 0;
     unsigned int k = 0;
     unsigned int m = 0;
+    unsigned int edge = 0;
     //Variables que marcan el siguiente, para el nodo final
     unsigned int nxti = 0;
     unsigned int nxtj = 0;
@@ -31,61 +48,67 @@ void minimunAreaRect(std::list<Point2D> & Q, float & area, Point2D & support, fl
     float slope = 0.0; //pendiente de la recta
     float At = 0.0; //area soporte
     
-    std::vector<Point2D> ch = Q;
-
+    std::vector<Point2D> ch;
+    int step;
+    std::list<Point2D>::iterator p = Q.begin();
+    while(p != Q.end()){
+        ch.push_back(*p);
+        p++;
+    }
+    ch.push_back(Q.front());//agrego ultimo el primero, por las dudas que tengo que dar la vuelta
+    std::reverse(ch.begin(), ch.end());
+    
     for(; i < n; i++){
-        
-        Point2D ii1 = ch[next(i,n)] - ch[i];;
-        Point2D jj1 = ch[next(j,n)] - ch[j];
-
+        Point2D ii1 = ch[i+1] - ch[i];;
+        Point2D jj1 = ch[j+1] - ch[j];
         while (dotProduct(ii1, jj1) > 0.0){
             j++;
-            jj1 = ch[next(j,n)] - ch[j];
+            jj1 = ch[j+1] - ch[j];
         }
         
 
-        if (i == 1) 
+        if (i == 0) 
             k = j;
 
-        Point2D kk1 = ch[next(k,n)] - ch[k];
+        Point2D kk1 = ch[k+1] - ch[k];
         while (crossProduct(ii1, kk1) > 0.0){
             k++;
-            kk1 = ch[next(k,n)] - ch[k];
+            kk1 = ch[k+1] - ch[k];
         }
         
-        if (i == 1) 
+        if (i == 0) 
             m = k;
 
-        Point2D mm1 = ch[next(m,n)] - ch[m];
+        Point2D mm1 = ch[m+1] - ch[m];
         while (dotProduct(ii1, mm1) < 0.0){
             m++;
-            mm1 = ch[next(m,n)] - ch[m];
+            mm1 = ch[m+1] - ch[m];
         }
 
-        if (ch[next(i,n)].x == ch[i].x){
-            d1 = abs(ch[k].x - ch[i].x);
-            d2 = abs(ch[m].y - ch[j].y);
+        if (ch[i+1].x == ch[i].x){
+            d1 = std::abs(ch[k].x - ch[i].x);
+            d2 = std::abs(ch[m].y - ch[j].y);
         } 
-        else if (ch[next(i,n)].y == ch[i].y){
-            d1 = abs(ch[k].y - ch[i].y);
-            d2 = abs(ch[m].x - ch[j].x);
+        else if (ch[i+1].y == ch[i].y){
+            d1 = std::abs(ch[k].y - ch[i].y);
+            d2 = std::abs(ch[m].x - ch[j].x);
         }
         else {
-            slope = (ch[next(i,n)].y - ch[i].y)/(ch[next(i,n)].x - ch[i].x);
-            d1 = perpDist(ch[i].x, ch[i].y, ch[k].x, ch[k].y, slope);
-
+            slope = (ch[i+1].y - ch[i].y)/(ch[i+1].x - ch[i].x);
+            d1 = perpDistWrapper(ch[i].x, ch[i].y, ch[k].x, ch[k].y, slope);
             if(compareEqualFloat(slope, 0.0))    
                 slope = 0.0001; //fix por si slope es casi como 0.
             
-            d2 = perpDist(ch[j].x, ch[j].y, ch[m].x, ch[m].y, -1/slope);
+            d2 = perpDistWrapper(ch[j].x, ch[j].y, ch[m].x, ch[m].y, -1/slope);
         }
         
         At = d1*d2;
-        if ((i == 1) or (At < area)){
+        
+        if ((i == 0) or ((At < area) and not compareEqualFloat(At,0.0))){
                 area = At; //guarda el area resultado
                 edge = i; // guarda el vertice resultado
                 resultSlope = slope; //guarda la pendiente resultado
         }
     }
-    support = ch[next(edge,n)] - ch[edge];
+    support = ch[edge];
 }
