@@ -1,1 +1,1 @@
-g++ Point2D.cpp gcfunc.cpp chGrahamScanGrafico.cpp grahamscan.cpp farthestPair.cpp -lGL -lGLU -lglut -o chgrahamscangrafico.bin && ./chgrahamscangrafico.bin < input.txt
+g++ Point2D.cpp Point3D.cpp gcfunc.cpp chGrahamScanGrafico.cpp grahamscan.cpp farthestPair.cpp chPerimeter.cpp -lGL -lGLU -lglut -o chgrahamscangrafico.bin && ./chgrahamscangrafico.bin < input.txt

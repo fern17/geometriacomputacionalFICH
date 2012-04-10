@@ -23,8 +23,6 @@ void leer(std::list<Point2D> &Q, unsigned int n){
   //printList(Q);
 }
 
-
-
 void printStack(std::stack<Point2D> &S){
   std::stack<Point2D> ss(S);
   std::cout<<"Pila:\n";
@@ -37,6 +35,7 @@ void printStack(std::stack<Point2D> &S){
 extern void grahamScan(std::list<Point2D> & Q, std::stack<Point2D> & S);
 extern void farthestPair(std::list<Point2D> & Q, std::pair<Point2D, Point2D> & FP, float & maxDistance);
 extern void minimumAreaRect(std::list<Point2D> & Q, float & area, Point2D & support, float & resultSlope);
+extern float chPerimeter(std::list<Point2D> & Q);
 
 int main(){
 //  std::list<Point2D> points;
@@ -51,7 +50,7 @@ int main(){
     std::cout<<"Graham Scan:\n";
     grahamScan(Q,S);
     printStack(S);
-   
+
     std::cout<<"Farthest Pair:\n";
     std::stack<Point2D> ss(S);
     std::list<Point2D> listaS;
@@ -63,8 +62,11 @@ int main(){
     std::pair<Point2D, Point2D> fPair;
     float maxDist;
     farthestPair(listaS, fPair, maxDist);
-    std::cout<<"Distance of Farthest Pair: "<<maxDist<<"\n";
+    std::cout<<"Distance of Farthest Pair (Diameter): "<<maxDist<<"\n";
     
+    std::cout<<"Perimeter:\n";
+    float perimeter = chPerimeter(listaS);
+    std::cout<<perimeter<<std::endl;
     
     std::cout<<"Minimum Area Enclosing Rectangle:\n";
     float area = 0.0;
@@ -73,7 +75,7 @@ int main(){
     
     minimumAreaRect(listaS, area, soporte, resultSlope);
     
-    std::cout<<"Area: "<<area<<"\nPendiente: "<<resultSlope<<"\nAnclada en: ";
+    std::cout<<"Area: "<<area<<"\nSlope: "<<resultSlope<<"\nAnchored in: ";
     soporte.print();
 
     std::cout<<"----------"<<std::endl;

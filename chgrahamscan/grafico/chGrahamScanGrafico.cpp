@@ -118,18 +118,18 @@ void play(){
     
     std::cout<<"Rotating Calipers (N):\n";
     farthestPair(listaS, fPair, maxDist);
-    std::cout<<"Distancia Maxima: "<<maxDist<<"\n";
+    std::cout<<"Maximum Distance: "<<maxDist<<"\n";
     fPair.first.print();
     fPair.second.print();
     
-    std::cout<<"N2:\n";
+    //std::cout<<"N2:\n";
     //farthestn2(listaS, fPair, maxDist);
-    std::cout<<"Distancia Maxima: "<<maxDist<<"\n";
-    fPair.first.print();
-    fPair.second.print();
+    //std::cout<<"Maximum Distance: "<<maxDist<<"\n";
+    //fPair.first.print();
+    //fPair.second.print();
 
     float perimeter = chPerimeter(listaS);
-    std::cout<<"Perimetro: "<<perimeter<<std::endl;
+    std::cout<<"Perimeter: "<<perimeter<<std::endl;
 }
 
 int main(int argc, char **argv){

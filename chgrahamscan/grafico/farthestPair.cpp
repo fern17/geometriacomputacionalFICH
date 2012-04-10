@@ -101,5 +101,5 @@ void farthestPair(std::list<Point2D> &Q, std::pair<Point2D, Point2D> &FP, float 
     
     FP = farthest;                                  //FP es el valor de retorno, un pair con ambos puntos
     maxDistance = currentDistance;                  //maxDistance es valor de retorno de la distancia, en float
-    std::cout<<"Tamanio del Convex Hull: "<<Q.size()<<"\nIteraciones hechas para encontrar Farthest Pair: "<<count<<std::endl; //
+    std::cout<<"Convex Hull Size: "<<Q.size()<<"\nIterations to find Farthest Pair: "<<count<<std::endl; //
 }
