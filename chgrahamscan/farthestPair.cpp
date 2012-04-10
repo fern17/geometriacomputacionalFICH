@@ -9,6 +9,7 @@ float distancePair(std::pair<Point2D, Point2D> &pair){
     return dist(pair.first, pair.second);
 }
 
+//Calcula el par mas lejano en tiempo cuadratico, probando todos contra todos
 void farthestn2(std::list<Point2D> &Q, std::pair<Point2D, Point2D> &FP, float &maxDistance){
    std::list<Point2D>::iterator p = Q.begin();
    std::list<Point2D>::iterator q = p;
@@ -35,7 +36,7 @@ void farthestn2(std::list<Point2D> &Q, std::pair<Point2D, Point2D> &FP, float &m
     maxDistance = currentDistance;
 }
 
-
+//Calcula el par mas lejano utiliando Rotating Calipers en tiempo lineal.
 void farthestPair(std::list<Point2D> &Q, std::pair<Point2D, Point2D> &FP, float &maxDistance){
     std::list<Point2D>::iterator p = Q.begin();
     std::list<Point2D>::iterator q = p;

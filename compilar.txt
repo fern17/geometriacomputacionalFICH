@@ -1,0 +1,1 @@
+g++ openglbase.cpp -lGL -lGLU -lglut  -o openglbase.bin

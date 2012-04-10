@@ -61,6 +61,7 @@ void minimumAreaRect(std::list<Point2D> & Q, float & area, Point2D & support, fl
     for(; i < n; i++){
         Point2D ii1 = ch[i+1] - ch[i];;
         Point2D jj1 = ch[j+1] - ch[j];
+        //Encuentra un vertice en la primer linea perpendicular de soporte
         while (dotProduct(ii1, jj1) > 0.0){
             j++;
             jj1 = ch[j+1] - ch[j];
@@ -69,7 +70,7 @@ void minimumAreaRect(std::list<Point2D> & Q, float & area, Point2D & support, fl
 
         if (i == 0) 
             k = j;
-
+        //Encuentra un vertice en la linea paralela de soporte
         Point2D kk1 = ch[k+1] - ch[k];
         while (crossProduct(ii1, kk1) > 0.0){
             k++;
@@ -78,13 +79,14 @@ void minimumAreaRect(std::list<Point2D> & Q, float & area, Point2D & support, fl
         
         if (i == 0) 
             m = k;
-
+        //Encuentra un vertice en la segunda linea perpendicular de soporte
         Point2D mm1 = ch[m+1] - ch[m];
         while (dotProduct(ii1, mm1) < 0.0){
             m++;
             mm1 = ch[m+1] - ch[m];
         }
 
+        //Calcula las distancias entre las lineas de soporte
         if (ch[i+1].x == ch[i].x){
             d1 = std::abs(ch[k].x - ch[i].x);
             d2 = std::abs(ch[m].y - ch[j].y);
@@ -102,6 +104,7 @@ void minimumAreaRect(std::list<Point2D> & Q, float & area, Point2D & support, fl
             d2 = perpDistWrapper(ch[j].x, ch[j].y, ch[m].x, ch[m].y, -1/slope);
         }
         
+        //Calcula el area y reemplaza si es mas chica
         At = d1*d2;
         
         if ((i == 0) or ((At < area) and not compareEqualFloat(At,0.0))){
