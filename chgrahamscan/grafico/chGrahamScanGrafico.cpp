@@ -100,7 +100,8 @@ void printStack(std::stack<Point2D> &S){
 
 extern void grahamScan(std::list<Point2D> & Q, std::stack<Point2D> & S);
 extern void farthestPair(std::list<Point2D> & Q, std::pair<Point2D, Point2D> & FP, float & maxDistance);
-void farthestn2(std::list<Point2D> &Q, std::pair<Point2D, Point2D> &FP, float &maxDistance);
+extern void farthestn2(std::list<Point2D> &Q, std::pair<Point2D, Point2D> &FP, float &maxDistance);
+extern float chPerimeter(std::list<Point2D> & Q);
 
 void play(){
     int n;
@@ -126,6 +127,9 @@ void play(){
     std::cout<<"Distancia Maxima: "<<maxDist<<"\n";
     fPair.first.print();
     fPair.second.print();
+
+    float perimeter = chPerimeter(listaS);
+    std::cout<<"Perimetro: "<<perimeter<<std::endl;
 }
 
 int main(int argc, char **argv){
