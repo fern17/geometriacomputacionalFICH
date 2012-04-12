@@ -6,6 +6,9 @@ typedef struct Punto{
     float x;
     float y;
     float z;
+    void print(){
+        std::cout<<x<<' '<<y<<' '<<z<<'\n';
+    }
 }Punto;
 
 std::vector<Punto> puntos;
@@ -22,10 +25,10 @@ int
 float
   escala = 100, escala0, // escala de los objetos window/modelo pixeles/unidad
   eye[] = {0,0,5}, target[] = {0,0,0}, up[] = {0,1,0}, // camara, mirando hacia y vertical
-  znear = 2.f, zfar = 8.f, //clipping planes cercano y alejado de la camara (en 5 => veo de 3 a -3)
+  znear = 3.f, zfar = 10.f, //clipping planes cercano y alejado de la camara (en 5 => veo de 3 a -3)
   amy, amy0, // angulo del modelo alrededor del eje y
-  ac0, rc0; // angulo resp x y distancia al target de la camara al clickear
-
+  ac0, rc0, // angulo resp x y distancia al target de la camara al clickear
+  lat=0,lat0,lon=0,lon0; // latitud y longitud (grados) de la camara (0=al clickear)
 bool // variables de estado de este programa
   perspectiva=true, // perspectiva u ortogonal
   rota=false,       // gira continuamente los objetos respecto de y
@@ -85,7 +88,26 @@ void regen() {
 }
 
 
+// calcula la posicion de la camara y el vector up (al manipular o si gira)
+void calc_eye(){
+  static const double g2r = atan(1.0)/45;// grados a radianaes 
+  double 
+    latr = lat*g2r,
+    lonr = lon*g2r,
+    slat = sin(latr),
+    clat = cos(latr),
+    slon = sin(lonr),
+    clon = cos(lonr);
 
+  up[1] = clat; 
+  up[0] = -slat*slon; 
+  up[2] = -slat*clon;
+
+  eye[1] = 5*slat; 
+  eye[0] = 5*clat*slon; 
+  eye[2] = 5*clat*clon;
+  regen();
+}
 
 void reshape_cb (int w, int h) {
     if (w==0||h==0) return;
@@ -99,18 +121,54 @@ void reshape_cb (int w, int h) {
 }
 
 void display_cb() {
-    glClear(GL_COLOR_BUFFER_BIT);
-    glColor3f(1,1,0); glLineWidth(3);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glColor3f(1,0,0); glLineWidth(3);
     glPointSize(5);
+    glBegin(GL_LINE_LOOP);
+      for(unsigned int i = 0; i < puntos.size(); i++){
+        Punto p = puntos[i];
+        glVertex3f(p.x,p.y,p.z);
+      }
+    glEnd();
+    glColor3f(0,1,0);
     glBegin(GL_POINTS);
       for(unsigned int i = 0; i < puntos.size(); i++){
         Punto p = puntos[i];
         glVertex3f(p.x,p.y,p.z);
       }
     glEnd();
-    glutSwapBuffers();
+glutSwapBuffers();
 }
 
+
+//------------------------------------------------------------
+// Movimientos del mouse
+void Motion_cb(int xm, int ym){ // drag
+  ym=h-ym; // y abajo
+  if (boton==GLUT_LEFT_BUTTON){
+    if (modifiers==GLUT_ACTIVE_SHIFT){ // cambio de escala
+      escala=escala0*exp((yclick-ym)/100.0);
+      regen();
+    }
+    else { // manipulacion de la camara
+      // el signo menos es para que parezcan movimientos del objeto
+      lon = lon0 - (xm-xclick)*180.0/h; 
+      if (lon>=360) 
+          lon-=360;
+      lat = lat0 - (ym-yclick)*180.0/w; 
+      if (lat>=90) 
+          lat=89.99;
+      if (lat<=-90) 
+          lat=-89.99;
+      calc_eye();
+    }
+  }
+}
+
+
+
+
+/*
 //------------------------------------------------------------
 // Movimientos del mouse
 void Motion_cb(int xm, int ym){ // drag
@@ -137,12 +195,13 @@ void Motion_cb(int xm, int ym){ // drag
       regen();
     }
   }
-}
+}*/
 // Clicks del mouse
 // GLUT LEFT BUTTON, GLUT MIDDLE BUTTON, or GLUT RIGHT BUTTON
 // The state parameter is either GLUT UP or GLUT DOWN
 // glutGetModifiers may be called to determine the state of modifier keys
 void Mouse_cb(int button, int state, int x, int y){
+  y = h-y;
   static bool old_rota=false;
   if (button == GLUT_LEFT_BUTTON){
     if (state == GLUT_DOWN) {
@@ -157,11 +216,12 @@ void Mouse_cb(int button, int state, int x, int y){
         escala0 = escala;
       }
       else { // manipulacion
-        double yc = eye[1]-target[1];
+        lat0=lat; lon0=lon;
+		/*double yc = eye[1]-target[1];
         double zc = eye[2]-target[2];
         rc0 = sqrt(yc*yc+zc*zc);
         ac0 = atan2(yc,zc);
-        amy0 = amy;
+        amy0 = amy;*/
       }
     }
     else if (state==GLUT_UP){
@@ -180,21 +240,20 @@ void initialize() {
     glutDisplayFunc (display_cb);
     glutMouseFunc(Mouse_cb); // botones picados
     glutReshapeFunc (reshape_cb);
-    glClearColor(0.f, 0.f, 0.f, 1.f);
+    glClearColor(1.f, 1.f, 1.f, 1.f);
     glEnable(GL_DEPTH_TEST); glDepthFunc(GL_LEQUAL); // habilita el z-buffer
-
+	regen();
 }
 
 void leerPuntos(){
     unsigned int n;
-    float x;
-    float y;
     std::cin>>n;
 
     for(unsigned int i = 0; i < n; i++){
         Punto p;
         std::cin>>p.x;
         std::cin>>p.y;
+        std::cin>>p.z;
         puntos.push_back(p);
     }
 }

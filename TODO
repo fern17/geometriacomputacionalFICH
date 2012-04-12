@@ -1,8 +1,15 @@
 Listado de algoritmos desarrollados:
 
 - Convex Hull (2d):
-  * Graham de las 3 monedas
-  * Marcha de Melkman
+  * Graham Scan
+  * Melkman
+  * Marcha de Jarvis
 
-- Interseccion Segmentos:
+- Interseccion Segmentos
+  * Bentley-Ottmann
+
+- Triangulación de Polígonos
+
+- Programación Lineal
+ 
 
