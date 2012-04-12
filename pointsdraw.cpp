@@ -70,7 +70,8 @@ void regen() {
                 delta[2]*delta[2]);
       w0 *= znear/dist,
       h0 *= znear/dist; //w0 y h0 en el near
-    glFrustum(-w0, w0, -h0, h0, znear, zfar);
+    glFrustum(0, w/2, 0, h/2, znear, zfar);
+    //glFrustum(-w0, w0, -h0, h0, znear, zfar);
   }
   else { // proyeccion ortogonal
     glOrtho(-w0, w0, -h0, h0, znear, zfar);
@@ -82,7 +83,7 @@ void regen() {
               target[0],target[1],target[2],
                   up[0],    up[1],    up[2]);// ubica la camara
   // rota los objetos alrededor de y
-  glRotatef(amy,0,1,0);
+  //glRotatef(amy,0,1,0);
 
   glutPostRedisplay(); // avisa que hay que redibujar
 }
@@ -130,14 +131,38 @@ void display_cb() {
         glVertex3f(p.x,p.y,p.z);
       }
     glEnd();
-    glColor3f(0,1,0);
+    glColor3f(0,0,1);
+
+    //Transforma coordenadas de ventana a coordenadas de perspectiva
+    //http://nehe.gamedev.net/article/using_gluunproject/16013/
+    /*
+    GLint viewport[4];
+    GLdouble modelview[16];
+    GLdouble projection[16];
+    GLfloat winX, winY, winZ;
+    GLdouble posX, posY, posZ;
+    glGetDoublev(GL_MODELVIEW_MATRIX, modelview);
+    glGetDoublev(GL_PROJECTION_MATRIX, projection);
+    glGetIntegerv(GL_VIEWPORT, viewport);
+    */
+
     glBegin(GL_POINTS);
       for(unsigned int i = 0; i < puntos.size(); i++){
         Punto p = puntos[i];
-        glVertex3f(p.x,p.y,p.z);
+        glVertex3f(p.x, p.y, p.z);
+        /*
+        winX = (float) p.x;
+        winY = (float) viewport[3] - (float) p.y;
+        winZ = p.z;
+        
+        gluUnProject(winX, winY, winZ, 
+                     modelview, projection, viewport, 
+                     &posX, &posY, &posZ);
+        glVertex3f(posX,posY,posZ);
+        */
       }
     glEnd();
-glutSwapBuffers();
+    glutSwapBuffers();
 }
 
 
