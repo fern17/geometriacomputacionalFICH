@@ -20,15 +20,17 @@ int
   w=640, h=480, // tamaño de la ventana
   boton=-1, // boton del mouse clickeado
   xclick,yclick, // x e y cuando clickeo un boton
-  plano; // 0=x 1=y 2=z
+  plano, // 0=x 1=y 2=z
+  maxZ = 1000;
 
 float
   escala = 100, escala0, // escala de los objetos window/modelo pixeles/unidad
   eye[] = {0,0,5}, target[] = {0,0,0}, up[] = {0,1,0}, // camara, mirando hacia y vertical
-  znear = 3.f, zfar = 10.f, //clipping planes cercano y alejado de la camara (en 5 => veo de 3 a -3)
+  znear = 3.f, zfar = 6.f, //clipping planes cercano y alejado de la camara (en 5 => veo de 3 a -3)
   amy, amy0, // angulo del modelo alrededor del eje y
   ac0, rc0, // angulo resp x y distancia al target de la camara al clickear
   lat=0,lat0,lon=0,lon0; // latitud y longitud (grados) de la camara (0=al clickear)
+  double h0, w0;
 bool // variables de estado de este programa
   perspectiva=true, // perspectiva u ortogonal
   rota=false,       // gira continuamente los objetos respecto de y
@@ -57,8 +59,8 @@ void regen() {
   glLoadIdentity();
 
   // semiancho y semialto de la ventana a escala en el target
-  double w0 = (double) w/2/escala;
-  double h0 = (double) h/2/escala;
+  w0 = (double) w/2/escala;
+  h0 = (double) h/2/escala;
   // frustum, perspective y ortho son respecto al eye con los z positivos
   if (perspectiva){ // perspectiva
     double
@@ -70,8 +72,8 @@ void regen() {
                 delta[2]*delta[2]);
       w0 *= znear/dist,
       h0 *= znear/dist; //w0 y h0 en el near
-    glFrustum(0, w/2, 0, h/2, znear, zfar);
-    //glFrustum(-w0, w0, -h0, h0, znear, zfar);
+    //glFrustum(0, w/2, 0, h/2, znear, zfar);
+    glFrustum(-w0, w0, -h0, h0, znear, zfar);
   }
   else { // proyeccion ortogonal
     glOrtho(-w0, w0, -h0, h0, znear, zfar);
@@ -83,7 +85,7 @@ void regen() {
               target[0],target[1],target[2],
                   up[0],    up[1],    up[2]);// ubica la camara
   // rota los objetos alrededor de y
-  //glRotatef(amy,0,1,0);
+//  glRotatef(amy,0,1,0);
 
   glutPostRedisplay(); // avisa que hay que redibujar
 }
@@ -125,41 +127,29 @@ void display_cb() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glColor3f(1,0,0); glLineWidth(3);
     glPointSize(5);
-    glBegin(GL_LINE_LOOP);
+    glFrontFace(GL_CW);
+    glPushMatrix();
+    //glTranslatef(,300,0);
+    //glutSolidTeapot(1.5); 
+    glPopMatrix();
+    glFrontFace(GL_CCW);
+    /*glBegin(GL_LINE_LOOP);
       for(unsigned int i = 0; i < puntos.size(); i++){
         Punto p = puntos[i];
         glVertex3f(p.x,p.y,p.z);
       }
     glEnd();
-    glColor3f(0,0,1);
-
-    //Transforma coordenadas de ventana a coordenadas de perspectiva
-    //http://nehe.gamedev.net/article/using_gluunproject/16013/
-    /*
-    GLint viewport[4];
-    GLdouble modelview[16];
-    GLdouble projection[16];
-    GLfloat winX, winY, winZ;
-    GLdouble posX, posY, posZ;
-    glGetDoublev(GL_MODELVIEW_MATRIX, modelview);
-    glGetDoublev(GL_PROJECTION_MATRIX, projection);
-    glGetIntegerv(GL_VIEWPORT, viewport);
     */
+    
+    glColor3f(0,0,1);
 
     glBegin(GL_POINTS);
       for(unsigned int i = 0; i < puntos.size(); i++){
         Punto p = puntos[i];
-        glVertex3f(p.x, p.y, p.z);
-        /*
-        winX = (float) p.x;
-        winY = (float) viewport[3] - (float) p.y;
-        winZ = p.z;
-        
-        gluUnProject(winX, winY, winZ, 
-                     modelview, projection, viewport, 
-                     &posX, &posY, &posZ);
-        glVertex3f(posX,posY,posZ);
-        */
+        float newx = (p.x-w/2)/escala;
+        float newy = (p.y-h/2)/escala;
+        float newz = (p.z*(zfar-znear))/maxZ;
+        glVertex3f(newx, newy, newz);
       }
     glEnd();
     glutSwapBuffers();
@@ -177,10 +167,12 @@ void Motion_cb(int xm, int ym){ // drag
     }
     else { // manipulacion de la camara
       // el signo menos es para que parezcan movimientos del objeto
-      lon = lon0 - (xm-xclick)*180.0/h; 
+      lon = lon0 - (xm-xclick)*180.0/h;
+      std::cout<<"Lon: "<<lon<<'\n';
       if (lon>=360) 
           lon-=360;
       lat = lat0 - (ym-yclick)*180.0/w; 
+      std::cout<<"Lat: "<<lat<<'\n';
       if (lat>=90) 
           lat=89.99;
       if (lat<=-90) 
@@ -260,10 +252,10 @@ void Mouse_cb(int button, int state, int x, int y){
 void initialize() {
     glutInitDisplayMode(GLUT_DEPTH|GLUT_RGB|GLUT_DOUBLE|GLUT_ALPHA);
     glutInitWindowSize (w,h);
-    glutInitWindowPosition (50,50);
+    glutInitWindowPosition (100,100);
     glutCreateWindow ("Ventana OpenGL");
     glutDisplayFunc (display_cb);
-    glutMouseFunc(Mouse_cb); // botones picados
+    glutMouseFunc(Mouse_cb); // botones apretados
     glutReshapeFunc (reshape_cb);
     glClearColor(1.f, 1.f, 1.f, 1.f);
     glEnable(GL_DEPTH_TEST); glDepthFunc(GL_LEQUAL); // habilita el z-buffer
