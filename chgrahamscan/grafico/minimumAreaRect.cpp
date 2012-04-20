@@ -19,25 +19,15 @@ extern float perpDist(float x1, float y1, float a2, float b2, float c2);
 float perpDistWrapper(float x1, float y1, float x2, float y2, float slope){
     float a2 = -slope;
     float b2 = 1;
-//    float c2 = y1 - slope*x1;
-    float c1 = slope*x1 - y1; //fix segun apunte mio
+  //  float c2 = y1 - slope*x1;
+  //  float c1 = y2 - slope*x2;
+    float c1 = slope*x1 - y1; //fix segun apunte 
     float c2 = slope*x2 - y2;
     float t1 = abs(c1-c2); 
     float t2 = sqrt(a2*a2 + b2*b2);
     return t1/t2;
 //    return perpDist(x1, y1, a2, b2, c2);
 }
-//devuelve el siguiente valor y MUEVE el indice
-/*unsigned int next(unsigned int &idx, unsigned int n){
-    if(idx+1 >= n){ 
-        idx = 0;
-        return 0;
-    }
-    else{
-        idx++;
-        return idx+1;
-    }
-}*/
 
 //Calcula el angulo entre el vector ch[k-1]->ch[k] y ch[k]->ch[k+1]
 // utilizando el producto punto: cos(tita) = (u.v)/(|u||v|)
@@ -101,7 +91,7 @@ void minimumAreaRect(std::list<Point2D> & Q, float & area, Point2D & support, fl
     float delta = beta;
 
         
-    for(; i < n; i++){//notar que ch tiene size n+1 porque agregue el primer punto como ultimo, pero solo se va hasta n
+    for(; i < n; i++){//notar que ch tiene size n+1 porque agregue el primer punto como ultimo, pero solo se recorre hasta n
         //std::cout<<"Iteracion="<<i<<'\n';
         if (i > 0){
             alfa += angle(ch, i);

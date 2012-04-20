@@ -102,7 +102,8 @@ extern void grahamScan(std::list<Point2D> & Q, std::stack<Point2D> & S);
 extern void farthestPair(std::list<Point2D> & Q, std::pair<Point2D, Point2D> & FP, float & maxDistance);
 extern void farthestn2(std::list<Point2D> &Q, std::pair<Point2D, Point2D> &FP, float &maxDistance);
 extern float chPerimeter(std::list<Point2D> & Q);
-
+extern void minimumAreaRect(std::list<Point2D> & Q, float & area, Point2D & support, float & resultSlope);
+extern void minimumAreaRect2(std::list<Point2D> & Q, float & area, Point2D & support, float & resultSlope);
 void play(){
     int n;
     std::cin>>n; 
@@ -128,8 +129,23 @@ void play(){
     //fPair.first.print();
     //fPair.second.print();
 
+    std::cout<<"Perimeter:\n";
     float perimeter = chPerimeter(listaS);
-    std::cout<<"Perimeter: "<<perimeter<<std::endl;
+    std::cout<<perimeter<<std::endl;
+    
+    std::cout<<"Minimum Area Enclosing Rectangle:\n";
+    float area;
+    float resultSlope = 0.0;
+    Point2D soporte;
+    
+    minimumAreaRect(listaS, area, soporte, resultSlope);
+    std::cout<<"Area: "<<area<<"\nSlope: "<<resultSlope<<"\nAnchored in: ";
+    soporte.print();
+    
+    minimumAreaRect2(listaS, area, soporte, resultSlope);
+    std::cout<<"Area2: "<<area<<"\nSlope: "<<resultSlope<<"\nAnchored in: ";
+    soporte.print();
+    
 }
 
 int main(int argc, char **argv){

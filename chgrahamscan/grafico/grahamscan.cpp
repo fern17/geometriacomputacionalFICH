@@ -10,7 +10,7 @@
 //Variable global
 Point2D minimal;
 
-extern float anglePoint2D(Point2D & p1, Point2D & p2);
+extern float anglePoint2D(Point2D & p1, Point2D & p2, bool comparar=true);
 extern bool comparePoint2DMinimalLeftDown(Point2D & p1, Point2D & p2);
 extern bool leftTurn(Point2D &p1, Point2D &p2, Point2D &p3);
 extern void printList(std::list<Point2D> &Q);

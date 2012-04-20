@@ -35,6 +35,7 @@ void printStack(std::stack<Point2D> &S){
 extern void grahamScan(std::list<Point2D> & Q, std::stack<Point2D> & S);
 extern void farthestPair(std::list<Point2D> & Q, std::pair<Point2D, Point2D> & FP, float & maxDistance);
 extern void minimumAreaRect(std::list<Point2D> & Q, float & area, Point2D & support, float & resultSlope);
+extern void minimumAreaRect2(std::list<Point2D> & Q, float & area, Point2D & support, float & resultSlope);
 extern float chPerimeter(std::list<Point2D> & Q);
 
 int main(){
@@ -57,7 +58,7 @@ int main(){
         listaS.push_back(ss.top());
         ss.pop();
     }
-
+    printList(listaS);
     std::cout<<"Farthest Pair:\n";
     std::pair<Point2D, Point2D> fPair;
     float maxDist;
@@ -77,6 +78,12 @@ int main(){
     
     std::cout<<"Area: "<<area<<"\nSlope: "<<resultSlope<<"\nAnchored in: ";
     soporte.print();
+    
+    minimumAreaRect2(listaS, area, soporte, resultSlope);
+    
+    std::cout<<"Area2: "<<area<<"\nSlope: "<<resultSlope<<"\nAnchored in: ";
+    soporte.print();
+
 
     std::cout<<"----------"<<std::endl;
   }

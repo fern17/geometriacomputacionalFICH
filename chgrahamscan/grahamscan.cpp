@@ -115,10 +115,9 @@ void grahamScan(std::list<Point2D> & Q, std::stack<Point2D> & S){
   borrarMinimal(Q, minimal);                                //Borra el minimal de la cola 
 
   Q.sort(comparePoint2DPolar);                              //Ordena en forma polar
-  std::cout<<"Lista ordenada\n"; printList(Q);
+  //std::cout<<"Lista ordenada\n"; printList(Q);
   
   eliminarColineales(Q);                                    //Hace limpieza de los puntos colineales, dejando el mas lejano
-  std::cout<<"Lista ordenada\n"; printList(Q);
  
   
   //Ubica las 3 primeras monedas
