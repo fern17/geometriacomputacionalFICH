@@ -65,23 +65,26 @@ float crossProduct(Point2D & p1, Point2D & p2){
 
 
 //Devuelve el angulo en RADIANES entre dos Puntos
-float anglePoint2D(Point2D & p1, Point2D & p2){
+float anglePoint2D(Point2D & p1, Point2D & p2, bool comparar = true){
   float modp1 = modulo(p1);
   float modp2 = modulo(p2);
   float angle = 0.0;
 
-  if(compareEqualFloat(modp1, modp2) == false){ //si los dos son coincidentes, devuelvo 0.0
-    if(compareEqualFloat(modp1,0)){ //modulo 0 del primero
-        angle = std::acos(p2.y/modp2);
-    } 
-    else if (compareEqualFloat(modp2,0)){ //modulo 0 del segundo
-      angle = std::acos(p1.y/modp1);
-    }
-    else {
-      float dotprod = dotProduct(p1,p2);
-      angle = std::acos(dotprod/(modp1*modp2));
-    } 
+  if( (comparar == true) && (compareEqualFloat(modp1, modp2) == false) ){ 
+      return angle; //retorna 0.0 porque son coincidentes
   }
+
+  if(compareEqualFloat(modp1,0)){ //modulo 0 del primero
+      angle = std::acos(p2.y/modp2);
+  } 
+  else if (compareEqualFloat(modp2,0)){ //modulo 0 del segundo
+    angle = std::acos(p1.y/modp1);
+  }
+  else {
+    float dotprod = dotProduct(p1,p2);
+    angle = std::acos(dotprod/(modp1*modp2));
+  } 
+  
   
   return angle;
 }

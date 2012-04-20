@@ -36,7 +36,7 @@ void farthestn2(std::list<Point2D> &Q, std::pair<Point2D, Point2D> &FP, float &m
     maxDistance = currentDistance;
 }
 
-//Calcula el par mas lejano en tiempo cuadratico, probando todos contra todos
+//Calcula el par mas lejano en tiempo lineal utilizando rotating calipers
 //Guarda en maxDistance la distancia entre este par, que define el Diametro del poligono
 void farthestPair(std::list<Point2D> &Q, std::pair<Point2D, Point2D> &FP, float &maxDistance){
     std::list<Point2D>::iterator p = Q.begin();

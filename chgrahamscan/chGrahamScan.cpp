@@ -20,7 +20,7 @@ void leer(std::list<Point2D> &Q, unsigned int n){
     std::cin>>p.y;
     Q.push_back(p);
   }
-  //printList(Q);
+  printList(Q);
 }
 
 void printStack(std::stack<Point2D> &S){
@@ -49,16 +49,16 @@ int main(){
     
     std::cout<<"Graham Scan:\n";
     grahamScan(Q,S);
-    printStack(S);
+    //printStack(S);
 
-    std::cout<<"Farthest Pair:\n";
     std::stack<Point2D> ss(S);
     std::list<Point2D> listaS;
     while(!ss.empty()){
         listaS.push_back(ss.top());
         ss.pop();
     }
-    
+
+    std::cout<<"Farthest Pair:\n";
     std::pair<Point2D, Point2D> fPair;
     float maxDist;
     farthestPair(listaS, fPair, maxDist);
@@ -69,7 +69,7 @@ int main(){
     std::cout<<perimeter<<std::endl;
     
     std::cout<<"Minimum Area Enclosing Rectangle:\n";
-    float area = 0.0;
+    float area;
     float resultSlope = 0.0;
     Point2D soporte;
     
