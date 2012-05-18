@@ -32,11 +32,22 @@ void printStack(std::stack<Point2D> &S){
   }
 }
 
+void printPairs(std::list<std::pair<Point2D, Point2D> > & pairs){
+    std::list<std::pair<Point2D, Point2D > >::iterator p = pairs.begin();
+    while( p != pairs.end()){
+        p->first.print(false); p->second.print(false);
+        std::cout<<std::endl;
+        p++;
+    }
+}
+
 extern void grahamScan(std::list<Point2D> & Q, std::stack<Point2D> & S);
 extern void farthestPair(std::list<Point2D> & Q, std::pair<Point2D, Point2D> & FP, float & maxDistance);
 extern void minimumAreaRect(std::list<Point2D> & Q, float & area, Point2D & support, float & resultSlope);
 extern void minimumAreaRect2(std::list<Point2D> & Q, float & area, Point2D & support, float & resultSlope);
 extern float chPerimeter(std::list<Point2D> & Q);
+extern void antipodalPairs(std::list<Point2D> &Q, std::list<std::pair<Point2D, Point2D> > &pairs);
+
 
 int main(){
 //  std::list<Point2D> points;
@@ -64,8 +75,13 @@ int main(){
     float maxDist;
     farthestPair(listaS, fPair, maxDist);
     std::cout<<"Distance of Farthest Pair (Diameter): "<<maxDist<<"\n";
-    
-    std::cout<<"Perimeter:\n";
+   
+    std::cout<<"Antipodal Pairs:\n";
+    std::list<std::pair<Point2D, Point2D> > pairs;
+    antipodalPairs(listaS, pairs);
+    printPairs(pairs);
+
+    /*std::cout<<"Perimeter:\n";
     float perimeter = chPerimeter(listaS);
     std::cout<<perimeter<<std::endl;
     
@@ -84,7 +100,7 @@ int main(){
     std::cout<<"Area2: "<<area<<"\nSlope: "<<resultSlope<<"\nAnchored in: ";
     soporte.print();
 
-
+*/
     std::cout<<"----------"<<std::endl;
   }
   return 0;
