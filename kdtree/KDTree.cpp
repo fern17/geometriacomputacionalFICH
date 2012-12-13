@@ -14,7 +14,11 @@ KDTree::KDTree(std::vector<Point> _points, int max_size) {
     }
     sort(points_x.begin(), points_x.end(), Utils::sortPointsByX);
     sort(points_y.begin(), points_y.end(), Utils::sortPointsByY);
-    this->root = this->build(points_x, points_y, NULL, 0); 
+
+    if(points.empty())
+        this->root = new Node();
+    else
+        this->root = this->build(points_x, points_y, NULL, 0); 
 }
 
 Node * KDTree::build(std::vector<Point*>points_x, std::vector<Point*> points_y, Node *father, unsigned int depth) {
@@ -104,7 +108,12 @@ void KDTree::printLines(Node *root) const {
 
 void KDTree::insert(const Point &p){
     points.push_back(p);
-    Node *candidate = root;
+    Node *candidate = this->search(p);
+    candidate->updateLimits(points.back());
+}
+
+Node *KDTree::search (const Point &p) const {
+    Node * candidate = this->root;
     bool vertical = true;
     while(candidate->left and candidate->right){
         if(vertical){
@@ -121,30 +130,5 @@ void KDTree::insert(const Point &p){
         }
         vertical = not vertical; 
     }
-
-    //tengo el padre
-    Node *father = candidate;
-    if(vertical){
-        if(candidate->point->x < p.x){
-            candidate->left = new Node(father, NULL, NULL, candidate->point, not vertical);
-            candidate->right = new Node(father, NULL, NULL, &points.back(), not vertical);
-        }
-        else{
-            candidate->left = new Node(father, NULL, NULL, &points.back(), not vertical);
-            candidate->right = new Node(father, NULL, NULL, candidate->point, not vertical);
-            candidate->point = &points.back();
-        }
-    }
-    else{
-        if(candidate->point->y < p.y){
-            candidate->left = new Node(father, NULL, NULL, candidate->point, not vertical);
-            candidate->right = new Node(father, NULL, NULL, &points.back(), not vertical);
-        }
-        else{
-            candidate->left = new Node(father, NULL, NULL, &points.back(), not vertical);
-            candidate->right = new Node(father, NULL, NULL, candidate->point, not vertical);
-            candidate->point = &points.back();
-        }
-    }
+    return candidate;
 }
-

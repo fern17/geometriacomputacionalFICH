@@ -15,6 +15,7 @@ class KDTree{
     void printLines(Node *root) const;
     void printPoints() const;
 
+    Node *search (const Point &p) const;
     void insert(const Point &);
 };
 #endif

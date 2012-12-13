@@ -5,6 +5,7 @@
 
 KDTree * kdtree;
 void Mouse_cb(int button, int state, int x, int y);
+void Motion_cb(int xm, int ym);
 
 void reshape_cb (int w, int h) {
     if (w==0||h==0) return;
@@ -40,6 +41,7 @@ void initialize() {
     glutDisplayFunc (display_cb);
     glutReshapeFunc (reshape_cb);
     glutMouseFunc(Mouse_cb);
+    glutPassiveMotionFunc(Motion_cb);
     glClearColor(0.f,0.f,0.f,1.f);
 }
 
@@ -62,4 +64,51 @@ void Mouse_cb(int button, int state, int x, int y){
 
         glutPostRedisplay();
     } // fin botón izquierdo
+}
+
+void Motion_cb(int xm, int ym){
+    ym = 480-ym;
+    std::cerr << "wololo ";
+    //Codigo del display_cb
+    glClear(GL_COLOR_BUFFER_BIT);
+    glColor3f(1,0,0);     
+    glPointSize(5); 
+    glBegin(GL_POINTS);
+        kdtree->printPoints(); 
+    glEnd();
+
+    glLineWidth(1);
+    glColor3f(0,0,1);
+    glBegin(GL_LINES);
+        kdtree->printLines();
+    glEnd();
+    //fin codigo display_cb
+    
+    Point P(xm, ym);
+    Node *boss = kdtree->search(P);
+    glColor3f(0,1,1);
+    glLineWidth(2);
+    glBegin(GL_LINES);
+        if(boss->limits[Node::LEFT]) {
+            glVertex2f(boss->limits[Node::LEFT]->point->x, 0); 
+            glVertex2f(boss->limits[Node::LEFT]->point->x, 480);
+        }
+        
+        if(boss->limits[Node::RIGHT]) {
+            glVertex2f(boss->limits[Node::RIGHT]->point->x, 0); 
+            glVertex2f(boss->limits[Node::RIGHT]->point->x, 480);
+        } 
+        
+        if(boss->limits[Node::UP]) {
+            glVertex2f(0,   boss->limits[Node::UP]->point->y); 
+            glVertex2f(640, boss->limits[Node::UP]->point->y);
+        }
+        
+        if(boss->limits[Node::DOWN]) {
+            glVertex2f(0,   boss->limits[Node::DOWN]->point->y); 
+            glVertex2f(640, boss->limits[Node::DOWN]->point->y);
+        }
+    glEnd();
+    
+    glutSwapBuffers();
 }
