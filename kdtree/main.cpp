@@ -2,7 +2,7 @@
 #include <iostream>
 #include "Utils.h"
 #include "KDTree.h"
-
+#include <unistd.h>
 //Variable global que almacena el kdtree
 KDTree * kdtree;
 
@@ -38,6 +38,8 @@ void display_cb() {
     glBegin(GL_LINES);
         kdtree->printLines();
     glEnd();
+    std::cerr<<"Mensaje alusivo:\n";
+    kdtree->print(kdtree->root, 0);
 
     glutSwapBuffers();
 }
@@ -50,7 +52,7 @@ void initialize() {
     glutDisplayFunc (display_cb);
     glutReshapeFunc (reshape_cb);
     glutMouseFunc(Mouse_cb);
-    glutPassiveMotionFunc(PassiveMotion_cb);
+    //glutPassiveMotionFunc(PassiveMotion_cb);
     glClearColor(0.f,0.f,0.f,1.f);
 }
 
@@ -66,18 +68,20 @@ int main (int argc, char **argv) {
 
 
 void Mouse_cb(int button, int state, int x, int y){
-    std::cerr << x << "," << y << "," << button << std::endl;
+    //std::cerr << x << "," << y << "," << button << std::endl;
     if (button==GLUT_LEFT_BUTTON and state==GLUT_DOWN){ // boton izquierdo
         y = 480-y;
         kdtree->insert( Point(x,y) );
 
         glutPostRedisplay();
     } // fin botón izquierdo
+    if (button==GLUT_RIGHT_BUTTON and state==GLUT_DOWN){ // boton derecho
+        PassiveMotion_cb(x,y);
+    }
 }
 
 void PassiveMotion_cb(int xm, int ym){
     ym = 480-ym;
-    std::cerr << "wololo ";
     //Codigo copiado del display_cb
     glClear(GL_COLOR_BUFFER_BIT);
     glColor3f(1,0,0);     
@@ -98,6 +102,9 @@ void PassiveMotion_cb(int xm, int ym){
     Point P(xm, ym);
     
     Node *boss = kdtree->search(P);
+    if (boss->point == NULL) return;
+    
+    
     glColor3f(0,1,1);
     glLineWidth(2);
     glBegin(GL_LINES);
@@ -121,6 +128,6 @@ void PassiveMotion_cb(int xm, int ym){
             glVertex2f(640, boss->limits[Node::DOWN]->point->y);
         }
     glEnd();
-    
+   
     glutSwapBuffers();
 }

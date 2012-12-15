@@ -2,7 +2,7 @@
 #include "Utils.h"
 #include <algorithm>
 #include <GL/glut.h>
-
+#include <iostream>
 KDTree::KDTree(std::vector<Point> _points, int max_size) {
     //Reserva espacio para no tener problemas de punteros. 
     this->points.reserve(max_size);
@@ -102,9 +102,12 @@ Node * KDTree::build(std::vector<Point*>points_x, std::vector<Point*> points_y, 
 }
 
 void KDTree::printPoints() const {
+    std::cerr<<"Puntos:\n";
     for (unsigned int i = 0; i < this->points.size(); i++) {
+        std::cerr<<this->points[i].x<<' '<<this->points[i].y<<'\t';
         glVertex2f(this->points[i].x, this->points[i].y);
     }
+    std::cerr<<'\n';
 }
 
 //Wrapper
@@ -130,7 +133,10 @@ void KDTree::printLines(Node *root) const {
 void KDTree::insert(const Point &p){
     points.push_back(p);
     Node *candidate = this->search(p);
-    candidate->updateLimits(points.back());
+    if (candidate->point == NULL) 
+        candidate->point = &points.back();
+    else
+        candidate->updateLimits(points.back());
 }
 
 //Devuelve un puntero a Nodo donde el punto P deberia insertarse
@@ -138,14 +144,14 @@ void KDTree::insert(const Point &p){
 Node *KDTree::search (const Point &p) const {
     Node * candidate = this->root;
     bool vertical = true;
-    while(candidate->left and candidate->right){
+    while(not candidate->isLeaf()){
         if(vertical){
             if(candidate->point->x < p.x)
                 candidate = candidate->right;
             else
                 candidate = candidate->left;
         }
-        else{
+        else {
             if(candidate->point->y < p.y)
                 candidate = candidate->right;
             else
@@ -155,3 +161,21 @@ Node *KDTree::search (const Point &p) const {
     }
     return candidate;
 }
+
+void KDTree::print(Node * candidate, unsigned int depth) {
+    if (candidate->point == NULL) return;
+    for (unsigned int i = 0; i < depth; i++) 
+        std::cerr<<"   ";
+    if (not candidate->left and not candidate->right){
+        std::cerr<<"("<<candidate->point->x<<','<<candidate->point->y<<')'<<'\n';
+    }
+    else {
+        if (candidate->vertical) 
+            std::cerr<<"x: "<<candidate->point->x<<'\n';
+        else
+            std::cerr<<"y: "<<candidate->point->y<<'\n';
+        this->print(candidate->left, depth+1);
+        this->print(candidate->right, depth+1);
+    }
+}
+

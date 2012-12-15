@@ -12,14 +12,18 @@ class Node {
     Node * limits[4]; //Identifica los limites de la region representada por este nodo 
     Point *point;   //Punto que representa este Nodo
     bool vertical;  //True si es un nodo que separa el espacio en vertical. False si lo separa en horizontal
+   
+    Node *near_left; //mas cercano a mi izquierda
+    Node *near_right;//mas cercano a mi derecha
 
+    bool isLeaf() {return not (this->left or this->right); }
     //Constructor vacío. Genera todo en NULL.
     Node(){
         father = this;
         left = right = NULL;
         point = NULL;
         vertical = true;
-        for(unsigned int i = 0; i < N; i++) limits[i] = this;
+        for(unsigned int i = 0; i < N; i++) limits[i] = NULL;
     }
     
     //Constructor que se le pasan todos los parametros
@@ -49,7 +53,7 @@ class Node {
         }
         
         //Si el nuevo nodo es un divisor vertical
-        if (new_node->vertical) {
+        if (this->vertical) {
             //Si el nuevo esta a la izquierda de mi
             if (new_node->point->x < point->x) {
                 new_node->limits[RIGHT] = this; //Yo defino el limite derecho del nuevo
@@ -82,6 +86,42 @@ class Node {
                 this->right = new_node;         //El nuevo esta abajo mio
             }
         }
+    }
+
+    //UP DOWN LEFT RIGHT
+     std::vector<Node *> updateClosest() {
+        if(this->isLeaf()){
+            return std::vector<Node *>(4, this);
+        }
+        
+        std::vector<Node *> worst_left = this->left->updateClosest();
+        std::vector<Node *> worst_right = this->right->updateClosest();
+        std::vector<Node *> the_worst(4);
+        
+        for (unsigned int i = 0; i < worst_left.size(); i++) {
+            if (worst_left[i]->point->x < worst_right[i]->point->x) {
+                the_worst[i] = worst_left[i];
+            } else {
+                the_worst[i] = worst_right[i];
+            }
+        }
+        for (unsigned int i = 0; i < worst_left.size(); i++) {
+            if (worst_left[i]->point->y < worst_right[i]->point->y) {
+                the_worst[i] = worst_left[i];
+            } else {
+                the_worst[i] = worst_right[i];
+            }
+        }
+
+        if (this->vertical) {
+            this->near_left = worst_right[LEFT];
+            this->near_right = worst_left[RIGHT];
+        } else {
+            this->near_left = worst_right[UP];
+            this->near_right = worst_left[DOWN];
+        }
+
+        return the_worst;
     }
 };
 #endif
