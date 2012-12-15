@@ -3,10 +3,14 @@
 #include "Utils.h"
 #include "KDTree.h"
 
+//Variable global que almacena el kdtree
 KDTree * kdtree;
-void Mouse_cb(int button, int state, int x, int y);
-void Motion_cb(int xm, int ym);
 
+//Declaracion de los callbacks
+void Mouse_cb(int button, int state, int x, int y);
+void PassiveMotion_cb(int xm, int ym);
+
+//Callback de Resize
 void reshape_cb (int w, int h) {
     if (w==0||h==0) return;
     glViewport(0,0,w,h);
@@ -17,19 +21,24 @@ void reshape_cb (int w, int h) {
     glLoadIdentity ();
 }
 
+//Callback de dibujado
 void display_cb() {
     glClear(GL_COLOR_BUFFER_BIT);
+    
+    //Dibuja los puntos
     glColor3f(1,0,0);     
     glPointSize(5); 
     glBegin(GL_POINTS);
         kdtree->printPoints(); 
     glEnd();
 
+    //Dibuja las lineas
     glLineWidth(1);
     glColor3f(0,0,1);
     glBegin(GL_LINES);
         kdtree->printLines();
     glEnd();
+
     glutSwapBuffers();
 }
 
@@ -41,7 +50,7 @@ void initialize() {
     glutDisplayFunc (display_cb);
     glutReshapeFunc (reshape_cb);
     glutMouseFunc(Mouse_cb);
-    glutPassiveMotionFunc(Motion_cb);
+    glutPassiveMotionFunc(PassiveMotion_cb);
     glClearColor(0.f,0.f,0.f,1.f);
 }
 
@@ -66,10 +75,10 @@ void Mouse_cb(int button, int state, int x, int y){
     } // fin botón izquierdo
 }
 
-void Motion_cb(int xm, int ym){
+void PassiveMotion_cb(int xm, int ym){
     ym = 480-ym;
     std::cerr << "wololo ";
-    //Codigo del display_cb
+    //Codigo copiado del display_cb
     glClear(GL_COLOR_BUFFER_BIT);
     glColor3f(1,0,0);     
     glPointSize(5); 
@@ -84,7 +93,10 @@ void Motion_cb(int xm, int ym){
     glEnd();
     //fin codigo display_cb
     
+    //Dibuja el cuadrado al que pertenece el punto que esta apuntado por el mouse
+    
     Point P(xm, ym);
+    
     Node *boss = kdtree->search(P);
     glColor3f(0,1,1);
     glLineWidth(2);
