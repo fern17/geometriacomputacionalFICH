@@ -166,16 +166,119 @@ void KDTree::print(Node * candidate, unsigned int depth) {
     if (candidate->point == NULL) return;
     for (unsigned int i = 0; i < depth; i++) 
         std::cerr<<"   ";
-    if (not candidate->left and not candidate->right){
+    if (candidate->isLeaf()){
         std::cerr<<"("<<candidate->point->x<<','<<candidate->point->y<<')'<<'\n';
     }
     else {
-        if (candidate->vertical) 
+        if (candidate->vertical){ 
             std::cerr<<"x: "<<candidate->point->x<<'\n';
-        else
+        }
+        else {
             std::cerr<<"y: "<<candidate->point->y<<'\n';
+        }
         this->print(candidate->left, depth+1);
         this->print(candidate->right, depth+1);
     }
 }
 
+//Wrapper
+Point *KDTree::findMin(bool searchVertical) {
+    if(not this->empty())
+        return this->findMin(this->root, searchVertical, true);
+    else
+        return NULL;
+}
+
+
+//Devuelve el minimo punto en una coordenada (horizontal si searchVertical = true, si no vertical
+Point *KDTree::findMin(Node *node, bool searchVertical, bool vertical) {
+    if (node->isLeaf()) 
+        return node->point;
+    else if (searchVertical == vertical) {
+        if (node->left == NULL)
+            return node->point;
+        else
+            return this->findMin(node->left, searchVertical, not vertical);
+    } else {
+        Point *minLeft = findMin(node->left, searchVertical, not vertical);
+        Point *minRight = findMin(node->right, searchVertical, not vertical);
+        return Utils::minimum(node->point, minLeft, minRight, searchVertical);
+    }
+}
+
+bool KDTree::empty(){
+    return this->points.empty();
+}
+
+
+//Funcion para probar, siempre borra la raiz
+Node* KDTree::remove() {
+    return this->remove2(this->root, this->root->point, true);
+}
+
+Node* KDTree::remove(Point *p){
+    if (this->empty()) return NULL;
+    else return this->remove(this->root, p, true);
+}
+
+Node* KDTree::remove(Node *node, Point *p, bool vertical) {
+    if (not node)
+        return NULL;
+    
+    //Forma A
+    if (vertical and p->x < node->point->x) 
+        node->left = remove(node->left, p, not vertical);
+    else if (vertical and p->x > node->point->x)
+        node->right = remove(node->right, p, not vertical);
+    else if (not vertical and p->y < node->point->y)
+        node->left = remove(node->left, p, not vertical);
+    else if (not vertical and p->y > node->point->y)
+        node->right = remove(node->right, p, not vertical);
+    /*Forma B
+    if ((*p)[vertical] < (*node->point)[vertical]) 
+        node->left = remove(node->left, p, not vertical);
+    else if ((*p)[vertical] > (*node->point)[vertical])
+        node->right = remove(node->right, p, not vertical);
+    */
+    else {
+        if (node->isLeaf()) 
+            return NULL;
+        else if (node->right) {
+            node->point = findMin(node->right, vertical, not vertical);
+        }
+        else {
+            node->point = findMin(node->left, vertical, not vertical);
+            node->left = NULL;
+        }
+        node->right = remove(node->right, node->point, not vertical);
+        return node;
+    }
+}
+
+
+Node* KDTree::remove2(Node *node, Point *p, bool vertical) {
+    if (not node)
+        return NULL;
+    bool next_vertical = not vertical;
+    if (p == node->point) {
+        if (node->right) {
+            node->point = findMin(node->right, vertical, next_vertical);
+            node->right = remove(node->right, node->point, next_vertical);
+        }
+        else if (node->left) {
+            node->point = findMin(node->left, vertical, next_vertical);
+            node->right = remove(node->left, node->point, next_vertical);
+        }
+        else 
+            node = NULL;
+    }
+    else if (vertical and p->x < node->point->x) 
+        node->left = remove(node->left, p, next_vertical);
+    else if (vertical and p->x > node->point->x)
+        node->right = remove(node->right, p, next_vertical);
+    else if (not vertical and p->y < node->point->y)
+        node->left = remove(node->left, p, next_vertical);
+    else if (not vertical and p->y > node->point->y)
+        node->right = remove(node->right, p, next_vertical);
+    return node;
+}

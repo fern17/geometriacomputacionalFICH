@@ -22,3 +22,26 @@ std::vector<Point> Utils::readFile(std::string name) {
     }
     return ret_val;
 }
+
+Point* Utils::minimum(Point *a, Point *b, Point *c, bool vertical) {
+    Point *ret_val;
+    if (vertical == true) {
+        if(a->x < b->x and a->x < c->x) 
+            ret_val = a;
+        else 
+        if (b->x < a->x and b->x < c->x) 
+            ret_val = b;
+        else
+            ret_val = c;
+    }
+    else {
+        if(a->y < b->y and a->y < c->y) 
+            ret_val = a;
+        else 
+        if (b->y < a->y and b->y < c->y) 
+            ret_val = b;
+        else
+            ret_val = c;
+    }
+    return ret_val;
+}

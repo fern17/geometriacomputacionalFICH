@@ -16,5 +16,12 @@ class KDTree{
 
     Node *search (const Point &p) const;
     void insert(const Point &);
+    Point *findMin(bool searchVertical);
+    Point *findMin(Node *node, bool searchVertical, bool vertical);
+    Node* remove();
+    Node* remove(Point *p);
+    Node* remove2(Node *node, Point *p, bool vertical);
+    Node* remove(Node *node, Point *p, bool vertical);
+    bool empty();
 };
 #endif

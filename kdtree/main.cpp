@@ -6,6 +6,29 @@
 //Variable global que almacena el kdtree
 KDTree * kdtree;
 
+void printTree() {
+    std::cerr<<"Arbol:\n";
+    kdtree->print(kdtree->root, 0);
+    std::cerr<<"\n";
+}
+
+void printMinimum() {
+    Point *minX;
+    Point *minY;
+    minX = kdtree->findMin(true);
+    minY = kdtree->findMin(false);
+    if (minX){ 
+        std::cout<<"\nMinimo X = "; 
+        minX->print();
+    }
+    if (minY){
+        std::cout<<"\nMinimo Y = "; 
+        minY->print();
+    }
+    std::cout<<"\n";
+}
+
+
 //Declaracion de los callbacks
 void Mouse_cb(int button, int state, int x, int y);
 void PassiveMotion_cb(int xm, int ym);
@@ -38,9 +61,9 @@ void display_cb() {
     glBegin(GL_LINES);
         kdtree->printLines();
     glEnd();
-    std::cerr<<"Mensaje alusivo:\n";
-    kdtree->print(kdtree->root, 0);
-
+    
+    printTree();
+   
     glutSwapBuffers();
 }
 
@@ -69,6 +92,16 @@ int main (int argc, char **argv) {
 
 void Mouse_cb(int button, int state, int x, int y){
     //std::cerr << x << "," << y << "," << button << std::endl;
+    if (button==GLUT_MIDDLE_BUTTON and state==GLUT_DOWN){ // boton del medio
+        Node *deleted = kdtree->remove();
+        if (deleted) {
+            std::cerr<<"Nodo borrado: "; 
+            deleted->point->print();
+            std::cerr<<'\n';
+            printTree();
+        }
+    }
+    
     if (button==GLUT_LEFT_BUTTON and state==GLUT_DOWN){ // boton izquierdo
         y = 480-y;
         kdtree->insert( Point(x,y) );
