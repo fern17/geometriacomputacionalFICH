@@ -5,21 +5,21 @@
 #include <iostream>
 KDTree::KDTree(std::vector<Point> _points, int max_size) {
     //Reserva espacio para no tener problemas de punteros. 
-    this->points.reserve(max_size);
-    this->points = _points;
+    //this->points.reserve(max_size);
+    //this->points = _points;
 
     //Copia los puntos en dos vectores y los ordenada por cada coordenada
-    std::vector<Point*> points_x;
-    std::vector<Point*> points_y;
+    std::vector<Point> points_x;
+    std::vector<Point> points_y;
     for (unsigned int i = 0; i < _points.size(); i++){
-        points_x.push_back(&points[i]);
-        points_y.push_back(&points[i]);
+        points_x.push_back(_points[i]);
+        points_y.push_back(_points[i]);
     }
     sort(points_x.begin(), points_x.end(), Utils::sortPointsByX);
     sort(points_y.begin(), points_y.end(), Utils::sortPointsByY);
 
     //Caso en que no hay puntos, la raiz es un nodo vacio
-    if(points.empty())
+    if(_points.empty())
         this->root = new Node();
     else
         this->root = this->build(points_x, points_y, NULL, 0);  //construye el arbol
@@ -27,7 +27,7 @@ KDTree::KDTree(std::vector<Point> _points, int max_size) {
 
 
 //Funcion recursiva que construye el arbol. Devuelve el puntero a la raiz.
-Node * KDTree::build(std::vector<Point*>points_x, std::vector<Point*> points_y, Node *father, unsigned int depth) {
+Node * KDTree::build(std::vector<Point>points_x, std::vector<Point> points_y, Node *father, unsigned int depth) {
     Node * new_root = new Node();   //Nodo vacio
     if (points_x.size() == 1) {     //Si queda un solo elemento en el vector
         new_root->father = father;  
@@ -39,10 +39,10 @@ Node * KDTree::build(std::vector<Point*>points_x, std::vector<Point*> points_y, 
         return new_root; //Retorna porque no tiene que lanzar ninguna recursion
     }
     
-    std::vector<Point*> left_x;
-    std::vector<Point*> left_y;
-    std::vector<Point*> right_x;
-    std::vector<Point*> right_y;
+    std::vector<Point> left_x;
+    std::vector<Point> left_y;
+    std::vector<Point> right_x;
+    std::vector<Point> right_y;
 
     unsigned int median_pos;
     
@@ -60,7 +60,7 @@ Node * KDTree::build(std::vector<Point*>points_x, std::vector<Point*> points_y, 
         
         //En left_y pone los elementos que estan a la izquierda en X del elemento de la mediana. Sino los pone en right_y
         for (unsigned int i = 0; i < points_y.size(); i++) {
-            if (points_y[i]->x < points_x[median_pos]->x)
+            if (points_y[i].x < points_x[median_pos].x)
                 left_y.push_back(points_y[i]);
             else
                 right_y.push_back(points_y[i]);
@@ -84,7 +84,7 @@ Node * KDTree::build(std::vector<Point*>points_x, std::vector<Point*> points_y, 
         
         //Pone en left_x los elementos que estan arriba del elemento de la mediana en Y. Si no lo pone en right_x
         for (unsigned int i = 0; i < points_x.size(); i++) {
-            if (points_x[i]->y < points_y[median_pos]->y)
+            if (points_x[i].y < points_y[median_pos].y)
                 left_x.push_back(points_x[i]);
             else
                 right_x.push_back(points_x[i]);
@@ -101,58 +101,35 @@ Node * KDTree::build(std::vector<Point*>points_x, std::vector<Point*> points_y, 
     return new_root;
 }
 
-void KDTree::printPoints() const {
-    std::cerr<<"Puntos:\n";
-    for (unsigned int i = 0; i < this->points.size(); i++) {
-        std::cerr<<this->points[i].x<<' '<<this->points[i].y<<'\t';
-        glVertex2f(this->points[i].x, this->points[i].y);
-    }
-    std::cerr<<'\n';
-}
-
-//Wrapper
-void KDTree::printLines() const {
-    this->printLines(this->root);
-}
-
-void KDTree::printLines(Node *root) const {
-    if(root->left == NULL or root->right == NULL) return;
-
-    if (root->vertical) {
-        glVertex2f(root->point->x, 0); 
-        glVertex2f(root->point->x, 480);  
-    } else {
-        glVertex2f(0, root->point->y); 
-        glVertex2f(640, root->point->y);  
-    }
-    printLines(root->left);
-    printLines(root->right);
+bool KDTree::empty(){
+    return this->root->point.isNULL();
 }
 
 //Inserta un nuevo elemento en el arbol
-void KDTree::insert(const Point &p){
-    points.push_back(p);
-    Node *candidate = this->search(p);
-    if (candidate->point == NULL) 
-        candidate->point = &points.back();
-    else
-        candidate->updateLimits(points.back());
+void KDTree::insert(const Point p){
+    if (this->empty()) {//primer insercion
+        this->root->point = p;
+    } 
+    else {
+        Node *candidate = this->search(p);
+        candidate->updateLimits(p);
+    }
 }
 
 //Devuelve un puntero a Nodo donde el punto P deberia insertarse
 //Se mueve en el arbol haciendo las comparaciones de si esta arriba o abajo, a la derecha o a la izquierda
-Node *KDTree::search (const Point &p) const {
-    Node * candidate = this->root;
+Node *KDTree::search (const Point p) const {
+    Node *candidate = this->root;
     bool vertical = true;
     while(not candidate->isLeaf()){
         if(vertical){
-            if(candidate->point->x < p.x)
+            if(candidate->point.x < p.x)
                 candidate = candidate->right;
             else
                 candidate = candidate->left;
         }
         else {
-            if(candidate->point->y < p.y)
+            if(candidate->point.y < p.y)
                 candidate = candidate->right;
             else
                 candidate = candidate->left;
@@ -162,36 +139,19 @@ Node *KDTree::search (const Point &p) const {
     return candidate;
 }
 
-void KDTree::print(Node * candidate, unsigned int depth) {
-    if (candidate->point == NULL) return;
-    for (unsigned int i = 0; i < depth; i++) 
-        std::cerr<<"   ";
-    if (candidate->isLeaf()){
-        std::cerr<<"("<<candidate->point->x<<','<<candidate->point->y<<')'<<'\n';
-    }
-    else {
-        if (candidate->vertical){ 
-            std::cerr<<"x: "<<candidate->point->x<<'\n';
-        }
-        else {
-            std::cerr<<"y: "<<candidate->point->y<<'\n';
-        }
-        this->print(candidate->left, depth+1);
-        this->print(candidate->right, depth+1);
-    }
-}
-
 //Wrapper
-Point *KDTree::findMin(bool searchVertical) {
+Point KDTree::findMin(bool searchVertical) {
     if(not this->empty())
         return this->findMin(this->root, searchVertical, true);
-    else
-        return NULL;
+    else {
+        std::cerr<<"Arbol vacio\n";
+        return Point();
+    }
 }
 
 
 //Devuelve el minimo punto en una coordenada (horizontal si searchVertical = true, si no vertical
-Point *KDTree::findMin(Node *node, bool searchVertical, bool vertical) {
+Point KDTree::findMin(Node *node, bool searchVertical, bool vertical) {
     if (node->isLeaf()) 
         return node->point;
     else if (searchVertical == vertical) {
@@ -200,39 +160,38 @@ Point *KDTree::findMin(Node *node, bool searchVertical, bool vertical) {
         else
             return this->findMin(node->left, searchVertical, not vertical);
     } else {
-        Point *minLeft = findMin(node->left, searchVertical, not vertical);
-        Point *minRight = findMin(node->right, searchVertical, not vertical);
-        return Utils::minimum(node->point, minLeft, minRight, searchVertical);
+        Point minLeft = findMin(node->left, searchVertical, not vertical);
+        Point minRight = findMin(node->right, searchVertical, not vertical);
+        return Utils::minimum(&node->point, &minLeft, &minRight, searchVertical);
     }
 }
 
-bool KDTree::empty(){
-    return this->points.empty();
-}
 
 
 //Funcion para probar, siempre borra la raiz
 Node* KDTree::remove() {
-    return this->remove2(this->root, this->root->point, true);
+    return this->remove(this->root, this->root->point, true);
 }
 
-Node* KDTree::remove(Point *p){
+Node* KDTree::remove(Point p){
     if (this->empty()) return NULL;
     else return this->remove(this->root, p, true);
 }
 
-Node* KDTree::remove(Node *node, Point *p, bool vertical) {
+Node* KDTree::remove(Node *node, Point p, bool vertical) {
     if (not node)
         return NULL;
     
     //Forma A
-    if (vertical and p->x < node->point->x) 
+    //
+    //Busqueda del nodo. Se mueve para izquierda o derecha segun coordenadas
+    if (vertical and p.x < node->point.x) 
         node->left = remove(node->left, p, not vertical);
-    else if (vertical and p->x > node->point->x)
+    else if (vertical and p.x > node->point.x)
         node->right = remove(node->right, p, not vertical);
-    else if (not vertical and p->y < node->point->y)
+    else if (not vertical and p.y < node->point.y)
         node->left = remove(node->left, p, not vertical);
-    else if (not vertical and p->y > node->point->y)
+    else if (not vertical and p.y > node->point.y)
         node->right = remove(node->right, p, not vertical);
     /*Forma B
     if ((*p)[vertical] < (*node->point)[vertical]) 
@@ -240,23 +199,29 @@ Node* KDTree::remove(Node *node, Point *p, bool vertical) {
     else if ((*p)[vertical] > (*node->point)[vertical])
         node->right = remove(node->right, p, not vertical);
     */
-    else {
-        if (node->isLeaf()) 
+    else { //node es el punto que quiero borrar
+        if (node->isLeaf()) { //si es una hoja, directamente lo borro
+            //node = NULL;
             return NULL;
-        else if (node->right) {
+        }
+        else if (node->right) { //si tiene un arbol a la derecha
+            //Encuentro el minimo de la derecha que va a reemplazar el nodo actual
             node->point = findMin(node->right, vertical, not vertical);
         }
-        else {
+        else { //si no tiene un arbol a la derecha
+            //Encuentro el minimo a la izquierda
             node->point = findMin(node->left, vertical, not vertical);
+            //Borro todo el arbol de la izquierda
             node->left = NULL;
         }
+        //borra el nodo a la derecha y cambia el puntero
         node->right = remove(node->right, node->point, not vertical);
-        return node;
+        //return node;
     }
+    return node;
 }
 
-
-Node* KDTree::remove2(Node *node, Point *p, bool vertical) {
+Node* KDTree::remove2(Node *node, Point p, bool vertical) {
     if (not node)
         return NULL;
     bool next_vertical = not vertical;
@@ -272,13 +237,74 @@ Node* KDTree::remove2(Node *node, Point *p, bool vertical) {
         else 
             node = NULL;
     }
-    else if (vertical and p->x < node->point->x) 
+    else if (vertical and p.x < node->point.x) 
         node->left = remove(node->left, p, next_vertical);
-    else if (vertical and p->x > node->point->x)
+    else if (vertical and p.x > node->point.x)
         node->right = remove(node->right, p, next_vertical);
-    else if (not vertical and p->y < node->point->y)
+    else if (not vertical and p.y < node->point.y)
         node->left = remove(node->left, p, next_vertical);
-    else if (not vertical and p->y > node->point->y)
+    else if (not vertical and p.y > node->point.y)
         node->right = remove(node->right, p, next_vertical);
+    
     return node;
 }
+
+void KDTree::print() {
+    this->print(this->root, 0);
+}
+
+void KDTree::print(Node * candidate, unsigned int depth) {
+    if (candidate == NULL) return;
+    for (unsigned int i = 0; i < depth; i++) 
+        std::cerr<<"   ";
+    if (candidate->isLeaf()){
+        std::cerr<<"("<<candidate->point.x<<','<<candidate->point.y<<')'<<'\n';
+    }
+    else {
+        if (candidate->vertical){ 
+            std::cerr<<"x: "<<candidate->point.x<<'\n';
+        }
+        else {
+            std::cerr<<"y: "<<candidate->point.y<<'\n';
+        }
+        this->print(candidate->left, depth+1);
+        this->print(candidate->right, depth+1);
+    }
+}
+
+void KDTree::printPoints() const{
+    std::cerr<<"Puntos:\n";
+    this->printPoints(this->root);
+    std::cerr<<'\n';
+}
+
+void KDTree::printPoints(Node *root) const {
+    if (root == NULL) return;
+    
+    if (root->isLeaf()) { //solo imprime si es hoja
+        std::cerr<<root->point.x<<' '<<root->point.y<<'\t';
+        glVertex2f(root->point.x, root->point.y); 
+    }
+    printPoints(root->left);
+    printPoints(root->right);
+}
+
+//Wrapper
+void KDTree::printLines() const {
+    this->printLines(this->root);
+}
+
+void KDTree::printLines(Node *root) const {
+    if(root->left == NULL or root->right == NULL) return;
+
+    if (root->vertical) {
+        glVertex2f(root->point.x, 0); 
+        glVertex2f(root->point.x, 480);  
+    } else {
+        glVertex2f(0, root->point.y); 
+        glVertex2f(640, root->point.y);  
+    }
+    printLines(root->left);
+    printLines(root->right);
+}
+

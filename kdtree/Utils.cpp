@@ -4,12 +4,12 @@
 #include <string>
 #include <vector>
 
-bool Utils::sortPointsByX(const Point *P, const Point *Q) {
-    return P->x < Q->x;
+bool Utils::sortPointsByX(const Point P, const Point Q) {
+    return P.x < Q.x;
 }
 
-bool Utils::sortPointsByY(const Point *P, const Point *Q) {
-    return P->y < Q->y;
+bool Utils::sortPointsByY(const Point P, const Point Q) {
+    return P.y < Q.y;
 }
 
 std::vector<Point> Utils::readFile(std::string name) {
@@ -23,7 +23,7 @@ std::vector<Point> Utils::readFile(std::string name) {
     return ret_val;
 }
 
-Point* Utils::minimum(Point *a, Point *b, Point *c, bool vertical) {
+Point Utils::minimum(Point *a, Point *b, Point *c, bool vertical) {
     Point *ret_val;
     if (vertical == true) {
         if(a->x < b->x and a->x < c->x) 
@@ -43,5 +43,5 @@ Point* Utils::minimum(Point *a, Point *b, Point *c, bool vertical) {
         else
             ret_val = c;
     }
-    return ret_val;
+    return *ret_val;
 }

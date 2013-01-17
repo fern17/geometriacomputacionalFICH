@@ -8,23 +8,17 @@ KDTree * kdtree;
 
 void printTree() {
     std::cerr<<"Arbol:\n";
-    kdtree->print(kdtree->root, 0);
+    kdtree->print();
     std::cerr<<"\n";
 }
 
 void printMinimum() {
-    Point *minX;
-    Point *minY;
-    minX = kdtree->findMin(true);
-    minY = kdtree->findMin(false);
-    if (minX){ 
-        std::cout<<"\nMinimo X = "; 
-        minX->print();
-    }
-    if (minY){
-        std::cout<<"\nMinimo Y = "; 
-        minY->print();
-    }
+    Point minX = kdtree->findMin(true);
+    Point minY = kdtree->findMin(false);
+    std::cout<<"\nMinimo X = "; 
+    minX.print();
+    std::cout<<"\nMinimo Y = "; 
+    minY.print();
     std::cout<<"\n";
 }
 
@@ -35,11 +29,11 @@ void PassiveMotion_cb(int xm, int ym);
 
 //Callback de Resize
 void reshape_cb (int w, int h) {
-    if (w==0||h==0) return;
-    glViewport(0,0,w,h);
+    if (w == 0 or h == 0) return;
+    glViewport(0, 0, w, h);
     glMatrixMode (GL_PROJECTION);
     glLoadIdentity ();
-    gluOrtho2D(0,w,0,h);
+    gluOrtho2D(0, w, 0, h);
     glMatrixMode (GL_MODELVIEW);
     glLoadIdentity ();
 }
@@ -96,9 +90,10 @@ void Mouse_cb(int button, int state, int x, int y){
         Node *deleted = kdtree->remove();
         if (deleted) {
             std::cerr<<"Nodo borrado: "; 
-            deleted->point->print();
+            deleted->point.print();
             std::cerr<<'\n';
             printTree();
+            glutPostRedisplay();
         }
     }
     
@@ -135,30 +130,30 @@ void PassiveMotion_cb(int xm, int ym){
     Point P(xm, ym);
     
     Node *boss = kdtree->search(P);
-    if (boss->point == NULL) return;
+    if (boss->point.isNULL()) return;
     
     
     glColor3f(0,1,1);
     glLineWidth(2);
     glBegin(GL_LINES);
         if(boss->limits[Node::LEFT]) {
-            glVertex2f(boss->limits[Node::LEFT]->point->x, 0); 
-            glVertex2f(boss->limits[Node::LEFT]->point->x, 480);
+            glVertex2f(boss->limits[Node::LEFT]->point.x, 0); 
+            glVertex2f(boss->limits[Node::LEFT]->point.x, 480);
         }
         
         if(boss->limits[Node::RIGHT]) {
-            glVertex2f(boss->limits[Node::RIGHT]->point->x, 0); 
-            glVertex2f(boss->limits[Node::RIGHT]->point->x, 480);
+            glVertex2f(boss->limits[Node::RIGHT]->point.x, 0); 
+            glVertex2f(boss->limits[Node::RIGHT]->point.x, 480);
         } 
         
         if(boss->limits[Node::UP]) {
-            glVertex2f(0,   boss->limits[Node::UP]->point->y); 
-            glVertex2f(640, boss->limits[Node::UP]->point->y);
+            glVertex2f(0,   boss->limits[Node::UP]->point.y); 
+            glVertex2f(640, boss->limits[Node::UP]->point.y);
         }
         
         if(boss->limits[Node::DOWN]) {
-            glVertex2f(0,   boss->limits[Node::DOWN]->point->y); 
-            glVertex2f(640, boss->limits[Node::DOWN]->point->y);
+            glVertex2f(0,   boss->limits[Node::DOWN]->point.y); 
+            glVertex2f(640, boss->limits[Node::DOWN]->point.y);
         }
     glEnd();
    
