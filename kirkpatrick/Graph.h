@@ -13,8 +13,9 @@ class Graph {
     
     public:
     Graph(std::string filename);    //Lee desde un archivo las coordenadas de los vertices, las vecindades y los triangulos
-    bool deletePoint(Point &p);     //Borra un punto. Llama a retriangulate primero, y luego lo borra cuando nadie lo referencia
+    bool deletePoint(Point &P);     //Borra un punto. Llama a retriangulate primero, y luego lo borra cuando nadie lo referencia
     void retriangulate(Vertex *vertex_to_delete); //Dado un vertice para borrar, genera nuevas vecindades
+    int searchPoint(const Point &P);
 };
 
 #endif
