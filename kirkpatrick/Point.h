@@ -9,6 +9,8 @@ class Point {
     float y;
     bool operator ==(const Point &P);
     bool operator !=(const Point &P);
+    void print(bool enter = false);
+    Point operator-(const Point &P) ;
 };
 
 #endif

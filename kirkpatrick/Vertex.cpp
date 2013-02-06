@@ -1,11 +1,29 @@
 #include "Vertex.h"
 #include "Point.h"
 #include <vector>
+#include <iostream>
 
 //Constructor
 Vertex::Vertex(float _x, float _y) {
     this->p.x = _x;
     this->p.y = _y;
+    
+}
+
+//Devuelve la cantidad de vecinos que tiene
+unsigned int Vertex::degree() {
+    return this->neighbors.size();
+}
+
+//Agrega TODOS los vecinos a la lista de vecinos
+void Vertex::setNeighbors(std::vector<Vertex *> _newneighbors) {
+    if (this->degree() > 0) {
+        std::cout<<"ERROR: ya se tienen vecinos. Borrando\n";
+        this->neighbors.clear();
+    }
+    for (unsigned int i = 0; i < _newneighbors.size(); i++) {
+        this->neighbors.push_back(_newneighbors[i]);
+    }
 }
 
 //Agrega un vecino a la lista de vecinos

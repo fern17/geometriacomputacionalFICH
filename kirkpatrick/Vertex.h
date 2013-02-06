@@ -12,7 +12,9 @@ class Vertex{
     std::vector<Triangle *> triangles;          //Punteros a los triangulos vecinos
 
     Vertex(float _x, float _y);
+    unsigned int degree();
     void addNeighbor(Vertex * _newneighbor);    //Agrega un vecino a la lista de vecinos
+    void setNeighbors(std::vector<Vertex *> _newneighbors); //Agrega TODOS los vecinos a la lista de vecinos
     bool isNeighbor(Vertex * neighbor);         //Dado un vertice, se fija si es vecino
     bool deleteNeighbor(Vertex * neighbor);     //Borra un vecino de la lista de vecinos. 
             //Ademas, debe llamar a ese vecino para que lo borre al vertice actual de su lista
