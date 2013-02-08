@@ -1,5 +1,6 @@
 #include "Vertex.h"
 #include "Point.h"
+#include "Triangle.h"
 #include <vector>
 #include <iostream>
 
@@ -7,7 +8,25 @@
 Vertex::Vertex(float _x, float _y) {
     this->p.x = _x;
     this->p.y = _y;
+    this->neighbors.clear();
+    this->triangles.clear();
+}
+
+//imprime el punto, sus vecinos y triangulos
+void Vertex::print() {
+    std::cout<<"Punto = "; this->p.print(true);
     
+    std::cout<<"Vecinos: \n";
+    for (unsigned int i = 0; i < this->neighbors.size(); i++) {
+        this->neighbors[i]->p.print(false); 
+        std::cout<<" ";
+    }
+    std::cout<<"\n";
+    
+    std::cout<<"Triangulos: \n"; 
+    for (unsigned int i = 0; i < this->triangles.size(); i++) {
+        std::cout<<"t #"<<i<<" "; this->triangles[i]->print(true);
+    }
 }
 
 //Devuelve la cantidad de vecinos que tiene
@@ -24,6 +43,26 @@ void Vertex::setNeighbors(std::vector<Vertex *> _newneighbors) {
     for (unsigned int i = 0; i < _newneighbors.size(); i++) {
         this->neighbors.push_back(_newneighbors[i]);
     }
+}
+
+//Agrega un triangulo a la lista de triangulos
+bool Vertex::addTriangle(Triangle * _newtriangle) {
+    if (not isTriangle(_newtriangle)) { //si ya no lo habia agregado antes
+        this->triangles.push_back(_newtriangle);
+        return true;
+    }
+    else 
+        return false;
+}
+
+//Retorna true si este vertice ya lo tiene como vecino al triangulo de argumento
+bool Vertex::isTriangle(Triangle * _newtriangle) {
+    for (unsigned int i = 0; i < this->triangles.size(); i++) {
+        if (this->triangles[i] == _newtriangle) { //compara direcciones
+            return true;
+        }
+    }
+    return false;
 }
 
 //Agrega un vecino a la lista de vecinos

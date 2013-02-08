@@ -13,6 +13,7 @@ class Graph {
     
     public:
     Graph(std::string f_vertex, std::string f_neighbor, std::string f_triangles);//Lee desde un archivo las coordenadas de los vertices, las vecindades y los triangulos
+    void printStructure(); //imprime la estructura completa
     bool deletePoint(Point &P);     //Borra un punto. Llama a retriangulate primero, y luego lo borra cuando nadie lo referencia
     void retriangulate(Vertex *vertex_to_delete); //Dado un vertice para borrar, genera nuevas vecindades
     int searchPoint(const Point &P); //Dado un punto, busca el vertice que lo referencia. 

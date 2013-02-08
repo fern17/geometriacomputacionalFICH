@@ -14,26 +14,35 @@ Graph::Graph(std::string f_vertex, std::string f_neighbor, std::string f_triangl
         return;
     }
     
+    //Lee la cantidad de puntos y reserva el espacio de vecinos en cada Vertex (para evitar problemas de punteros)
+    unsigned int cantidad_puntos;
+    file_v>>cantidad_puntos;
+    this->points.reserve(cantidad_puntos);
+    std::cout<<"Se soportaran "<<cantidad_puntos<<" puntos distintos.\n";
+    
     float _x;
     float _y;
     std::cout<<"Leyendo puntos:\n";
     while (file_v>>_x and file_v>>_y) {
         Vertex v (_x, _y);
         v.p.print(true);
+        v.neighbors.reserve(cantidad_puntos); //reserva espacio para los vecinos que pronto vendran
         this->points.push_back(v);
     }
     unsigned int points_read = this->points.size();
     std::cout<<points_read<<" puntos leidos\n";
     file_v.close();
-    /*-----------------------*/
+    /*--------------------------------------------------------------------------*/
 
     /*Lectura de las vecindades de cada punto */
+    
     std::ifstream file_n; 
     file_n.open(f_neighbor.c_str());
     if(!file_n.is_open()) { //muestra error si no se pudo abrir el archivo
         std::cout<<"No se pudo abrir el archivo "<<f_neighbor<<"\n";
         return;
     }
+    
     
     int value;
     std::string s, line;
@@ -66,9 +75,10 @@ Graph::Graph(std::string f_vertex, std::string f_neighbor, std::string f_triangl
     }
     std::cout<<vertex_processing<<" vecindades leidas\n";
     file_n.close();
-    /* ----------------- */
+    /* ----------------------------------------------------------------------------- */
 
-    /*Lectura de las coordenadas de vertices   */
+    /*Lectura de los triangulos   */
+    
     std::ifstream file_t; 
     file_t.open(f_triangles.c_str());
     if(!file_t.is_open()) { //muestra error si no se pudo abrir el archivo
@@ -76,6 +86,17 @@ Graph::Graph(std::string f_vertex, std::string f_neighbor, std::string f_triangl
         return;
     }
     
+    //Lee la cantidad de triangulos y reserva el espacio en cada Vertex (para evitar problemas de punteros)
+    unsigned int cantidad_triangulos;
+    file_t>>cantidad_triangulos;
+    this->triangles.reserve(cantidad_triangulos);
+    std::cout<<"Se soportaran "<<cantidad_triangulos<<" triangulos distintos.\n";
+    for (unsigned int i = 0; i < this->points.size(); i++) {
+        this->points[i].triangles.reserve(cantidad_triangulos);
+    }
+
+    
+
     unsigned int _p1;
     unsigned int _p2;
     unsigned int _p3;
@@ -95,16 +116,52 @@ Graph::Graph(std::string f_vertex, std::string f_neighbor, std::string f_triangl
             std::cout<<"Error: Indice del triangulo "<<triangle_num<<" invalido. Se leyo "<<_p3<<" pero solo hay "<<points_read<<" puntos.\n";
             continue;
         }
+        std::cout<<_p1<<' '<<_p2<<' '<<_p3<< '\n';
+        //Captura la direccion de memoria de los 3 vertices que componen este triangulo
+        Vertex *v1 = &this->points[_p1]; 
+        Vertex *v2 = &this->points[_p2]; 
+        Vertex *v3 = &this->points[_p3]; 
+        //Crea el triangulo
+        Triangle tri (v1,v2,v3);
         
-        Triangle tri (&this->points[_p1], &this->points[_p2], &this->points[_p3]);
-        std::cout<<"# "<<triangle_num<<" "; tri.print(true);
-       
         this->triangles.push_back(tri);
+        Triangle *tri_pointer = &this->triangles.back();
+        //Agrega el triangulo a cada uno de los vertices que lo componen
+        if(not v1->addTriangle(tri_pointer)) {
+            std::cout<<"Error, no se pudo agregar el triangulo a "; v1->p.print();
+        }
+        
+        if(not v2->addTriangle(tri_pointer)) {
+            std::cout<<"Error, no se pudo agregar el triangulo a "; v2->p.print();
+        }
+        
+        if(not v3->addTriangle(tri_pointer)) {
+            std::cout<<"Error, no se pudo agregar el triangulo a "; v3->p.print();
+        }
+       
+        std::cout<<"#"<<triangle_num<<" "; tri_pointer->print(true);
+        
         triangle_num++;
     }
     std::cout<<triangle_num<<" triangulos leidos\n";
     file_t.close();
 }    
+
+void Graph::printStructure() {
+    std::cout<<"Estructura del grafo:\n";
+    std::cout<<"Puntos:\n";
+    //Impresion de puntos
+    for (unsigned int i = 0; i < this->points.size(); i++) {
+        std::cout<<"#"<<i<<" "; this->points[i].print(); std::cout<<"\n";
+    }
+    std::cout<<"---------------------------------------------\n";
+
+    std::cout<<"Triangulos:\n";
+    //Impresion de triangulos
+    for (unsigned int i = 0; i < this->triangles.size(); i++) {
+        std::cout<<"#"<<i<<" "; this->triangles[i].print(true);
+    }
+}
 
 //Borra un punto. Llama a retriangulate primero, y luego lo borra cuando nadie lo referencia
 bool Graph::deletePoint(Point &P) {      

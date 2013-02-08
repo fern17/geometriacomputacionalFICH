@@ -12,7 +12,10 @@ class Vertex{
     std::vector<Triangle *> triangles;          //Punteros a los triangulos vecinos
 
     Vertex(float _x, float _y);
+    void print();                               //imprime el punto, sus vecinos y triangulos
     unsigned int degree();
+    bool addTriangle(Triangle * _newtriangle);  //agrega un triangulo en la lista, solo si no lo tenia ya
+    bool isTriangle(Triangle * _newtriangle);   //true si ya tiene a este triangulo en la lista de triangulos a los que pertenece
     void addNeighbor(Vertex * _newneighbor);    //Agrega un vecino a la lista de vecinos
     void setNeighbors(std::vector<Vertex *> _newneighbors); //Agrega TODOS los vecinos a la lista de vecinos
     bool isNeighbor(Vertex * neighbor);         //Dado un vertice, se fija si es vecino
@@ -21,7 +24,7 @@ class Vertex{
     unsigned int deleteAllNeighbors();           //Recorre todos los vecinos y llama a deleteNeighbor. 
         //Retorna la cantidad de vecinos borrados.
     bool operator == (const Vertex &V);         //Igualdad con respecto al punto p
-    int searchNeighbor(Vertex *V);        //Dado un vecino, devuelve la posicion donde esta en el vector de vecinos
+    int searchNeighbor(Vertex *V);              //Dado un vecino, devuelve la posicion donde esta en el vector de vecinos
 }; 
 
 #endif
