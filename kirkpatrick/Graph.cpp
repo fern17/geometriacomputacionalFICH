@@ -3,6 +3,8 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <GL/glut.h>
+
 //Lee desde un archivo las coordenadas de los vertices, las vecindades y los triangulos
 Graph::Graph(std::string f_vertex, std::string f_neighbor, std::string f_triangles) {
 
@@ -205,4 +207,28 @@ int Graph::searchPoint(const Point &P) {
         }
     }
     return -1;
+}
+
+void Graph::drawPoints() {
+    glBegin(GL_POINTS);
+    for (unsigned int i = 0; i < this->points.size(); i++) {
+        Vertex *v = &this->points[i];
+        glVertex2f(v->p.x, v->p.y);
+    }
+    glEnd();
+}
+
+void Graph::drawLines() {
+    glBegin(GL_LINES);
+    for (unsigned int i = 0; i < this->points.size(); i++) {
+        Vertex *v = &this->points[i];
+        
+        unsigned int cantidad_vecinos = v->neighbors.size();
+        for (unsigned int j = 0; j < cantidad_vecinos; j++) {
+            Vertex *u = v->neighbors[j];
+            glVertex2f(v->p.x, v->p.y);
+            glVertex2f(u->p.x, u->p.y);
+        }
+    }
+    glEnd();
 }

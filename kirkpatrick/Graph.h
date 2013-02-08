@@ -18,7 +18,8 @@ class Graph {
     void retriangulate(Vertex *vertex_to_delete); //Dado un vertice para borrar, genera nuevas vecindades
     int searchPoint(const Point &P); //Dado un punto, busca el vertice que lo referencia. 
                 //Retorna el indice en el vector de vertices o -1 si nadie lo referencia (no se encontro)
-
+    void drawPoints();
+    void drawLines();
 };
 
 #endif
