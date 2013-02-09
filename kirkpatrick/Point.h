@@ -1,10 +1,11 @@
 #ifndef _POINT_H_
 #define _POINT_H_
-#include <cmath>
 
 class Point {
     static const float EPSILON = 0.0001;
     public:
+    Point();
+    Point(float _x, float _y);
     float x;
     float y;
     bool operator ==(const Point &P);

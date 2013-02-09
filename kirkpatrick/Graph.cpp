@@ -1,4 +1,5 @@
 #include "Graph.h"
+#include "utils.cpp"
 #include <string>
 #include <iostream>
 #include <fstream>
@@ -97,12 +98,11 @@ Graph::Graph(std::string f_vertex, std::string f_neighbor, std::string f_triangl
         this->points[i].triangles.reserve(cantidad_triangulos);
     }
 
-    
-
     unsigned int _p1;
     unsigned int _p2;
     unsigned int _p3;
     unsigned int triangle_num = 0; //contador de puntos leidos
+    
     std::cout<<"Leyendo puntos de triangulos:\n";
     while (file_t>>_p1 and file_t>> _p2 and file_t>>_p3) {
         //Comprobacion de indices invalidos
@@ -118,7 +118,6 @@ Graph::Graph(std::string f_vertex, std::string f_neighbor, std::string f_triangl
             std::cout<<"Error: Indice del triangulo "<<triangle_num<<" invalido. Se leyo "<<_p3<<" pero solo hay "<<points_read<<" puntos.\n";
             continue;
         }
-        std::cout<<_p1<<' '<<_p2<<' '<<_p3<< '\n';
         //Captura la direccion de memoria de los 3 vertices que componen este triangulo
         Vertex *v1 = &this->points[_p1]; 
         Vertex *v2 = &this->points[_p2]; 
@@ -167,35 +166,96 @@ void Graph::printStructure() {
 
 //Borra un punto. Llama a retriangulate primero, y luego lo borra cuando nadie lo referencia
 bool Graph::deletePoint(Point &P) {      
+    //Obtiene la posicion en el vector donde esta el vertex que representa a P
     int position = this->searchPoint(P);
-    
     if (position == -1) 
         return false; //Point no encontrado
     else {
+        std::cout<<"Se borrara el punto "<<position<<"\n"; 
+        //Retriangula basado en la posicion de P
         this->retriangulate(&points[position]);
+        std::cout<<"Pudo retriangular bien\n";
+        //Borra todos los enlaces de P con sus vecinos
         unsigned int count_of_deleted_neighbors = this->points[position].deleteAllNeighbors();
+        std::cout<<"Se borraron "<<count_of_deleted_neighbors<<" vecinos del punto "; P.print(true);
+        //Borra a P de la estructura
         this->points.erase(this->points.begin()+position);
         return true;
     }
 }
 
-//Dado un vertice para borrar, genera nuevas vecindades
-//No funciona para caras no convexas
-void Graph::retriangulate(Vertex *vertex_to_delete) {
-    //Elegir un vecino cualquiera y tirar aristas a todos los otros
-    //Primero elegimos un vecino cualquiera:
-    Vertex *pivot = vertex_to_delete->neighbors.front();
-    //Obtenemos todos los vecinos del vertice a borrar
-    std::vector<Vertex *> neighbors_of_todelete = vertex_to_delete->neighbors;
-    for (unsigned int i = 0; i < neighbors_of_todelete.size(); i++) {
-        if (neighbors_of_todelete[i] == pivot or  //Si es el pivot, no hago nada
-            neighbors_of_todelete[i] == vertex_to_delete)  //comparacion extra que no deberia pasar nunca
-            continue;
-        else {
-            //Agrego una vecindad de pivot a un vecino (antiguo vecino de vertex_to_delete
-            neighbors_of_todelete[i]->addNeighbor(pivot); 
+//Dado un poligono, encuentra una diagonal valida y retorna sus indices por referencia
+bool Graph::findValidDiagonal(std::vector<Vertex *> polygon, unsigned int &p1, unsigned int &p2) {
+    unsigned int polysize = polygon.size();
+    for (unsigned int i = 0; i < polysize; i++) {
+        for (unsigned int j = i+1; j < polysize; j++) {
+            if(utils::diagonalInsidePolygon(polygon, i, j)) {
+                p1 = i;
+                p2 = j;
+                //std::cout<<"Se encontro la diagonal=\n"; polygon[p1]->print(); polygon[p2]->print();
+                return true;
+            }
         }
     }
+    return false;
+}
+
+
+//Retriangula recursivamente
+void Graph::retriangulate(std::vector<Vertex *> polygon) {
+    if (polygon.size() <= 3) 
+        return; //no hay mas diagonales validas
+    unsigned int p1;
+    unsigned int p2;
+    //encuentra UNA diagonal valida para agregar
+    if (this->findValidDiagonal(polygon, p1, p2)) {
+        polygon[p1]->addNeighbor(polygon[p2]); //agrega un nuevo vecino
+        
+        std::cerr<<"wololo\n";
+        std::vector<Vertex *> p1p2; //Polygono que va desde p1 a p2 CCW
+        std::vector<Vertex *> p2p1; //Poligono que va desde p2 a p1 CCW
+        
+        //separar poligono en p1p2 y p2p1
+        unsigned int index;
+        index = p1;
+        while (true) {
+            p1p2.push_back(polygon[index]);
+            index++;
+            if (index >= polygon.size())
+                index = 0; //index empieza desde el principio
+            if (index == p2) {
+                p1p2.push_back(polygon[index]);
+                break;
+            }
+        }
+        index = p2;
+        while (true) {
+            p2p1.push_back(polygon[index]);
+            index++;
+            if (index >= polygon.size())
+                index = 0; //index empieza desde el principio
+            if (index == p1) {
+                p2p1.push_back(polygon[index]);
+                break;
+            }
+        }
+        std::cout<<"separa p1 p2\n"; 
+        //Llamar recursivamente a retriangulate con cada mitad
+        this->retriangulate(p1p2);
+        this->retriangulate(p2p1);
+
+    } else {
+        std::cout<<"No se encontro una diagonal valida para retriangular.\n\n";
+    }
+
+}
+
+//Dado un vertice para borrar, genera nuevas vecindades
+void Graph::retriangulate(Vertex *vertex_to_delete) {
+    //Obtenemos todos los vecinos del vertice a borrar
+    std::vector<Vertex *> neighbors_of_todelete = vertex_to_delete->neighbors;
+    //retriangulamos
+    this->retriangulate(neighbors_of_todelete);
 }
 
 //Dado un punto, busca el vertice que lo referencia. 
@@ -231,4 +291,18 @@ void Graph::drawLines() {
         }
     }
     glEnd();
+}
+
+//borra el vertice mas cercano a P
+void Graph::deleteNearest(Point &P) {
+    unsigned int nearest = 0;
+    float current_distance = utils::dist(P, this->points.front().p);
+    for (unsigned int i = 1; i < this->points.size(); i++) {
+        float new_dist = utils::dist(P, this->points[i].p);
+        if (new_dist < current_distance) {
+            nearest = i;
+            current_distance = new_dist;
+        }
+    }
+    this->deletePoint(this->points[nearest].p);
 }

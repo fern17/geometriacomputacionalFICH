@@ -10,6 +10,7 @@ Vertex::Vertex(float _x, float _y) {
     this->p.y = _y;
     this->neighbors.clear();
     this->triangles.clear();
+    this->degree = 0;
 }
 
 //imprime el punto, sus vecinos y triangulos
@@ -29,20 +30,17 @@ void Vertex::print() {
     }
 }
 
-//Devuelve la cantidad de vecinos que tiene
-unsigned int Vertex::degree() {
-    return this->neighbors.size();
-}
 
 //Agrega TODOS los vecinos a la lista de vecinos
 void Vertex::setNeighbors(std::vector<Vertex *> _newneighbors) {
-    if (this->degree() > 0) {
+    if (this->degree > 0) {
         std::cout<<"ERROR: ya se tienen vecinos. Borrando\n";
         this->neighbors.clear();
     }
     for (unsigned int i = 0; i < _newneighbors.size(); i++) {
         this->neighbors.push_back(_newneighbors[i]);
     }
+    this->degree = this->neighbors.size();
 }
 
 //Agrega un triangulo a la lista de triangulos
@@ -68,7 +66,9 @@ bool Vertex::isTriangle(Triangle * _newtriangle) {
 //Agrega un vecino a la lista de vecinos
 void Vertex::addNeighbor(Vertex *new_neighbor) {
     if (not isNeighbor(new_neighbor)) { //Si ya no esta en la lista de vecinos
+        std::cerr<<"wololouuuu\n";
         this->neighbors.push_back(new_neighbor); //Ahora son vecinos
+        this->degree++;
         new_neighbor->addNeighbor(this);         //Que el otro me agregue como vecino tambien
     }
 }
@@ -76,7 +76,7 @@ void Vertex::addNeighbor(Vertex *new_neighbor) {
 //Dado un vertice, se fija si es vecino
 bool Vertex::isNeighbor(Vertex *neighbor) {
     int position = this->searchNeighbor(neighbor);
-    if (position == -1 or position < this->neighbors.size()) 
+    if (position == -1 or position >= this->neighbors.size()) 
         return false;//Fuera de rango => no es vecino
     else                
         return true; //En algun lado =>vecino
@@ -87,10 +87,11 @@ bool Vertex::isNeighbor(Vertex *neighbor) {
 bool Vertex::deleteNeighbor(Vertex * neighbor) {
     if (this->isNeighbor(neighbor)) { //Si es vecino
         int position = this->searchNeighbor(neighbor);
-        if (position == -1 or position < this->neighbors.size()) {
+        if (position == -1 or position >= this->neighbors.size()) {
             return false; //Posicion no encontrada o fuera de rango
         } else {
             this->neighbors.erase(this->neighbors.begin()+position);
+            this->degree--;
             neighbor->deleteNeighbor(this);
             return true;
         }
@@ -109,6 +110,11 @@ unsigned int Vertex::deleteAllNeighbors() {
         if (deleted)
             count++;
     }
+    unsigned int new_degree;
+    if (new_degree > 0) {
+        std::cout<<"Advertencia. No se borraron todos los vecinos\n";
+    }
+    this->degree = new_degree;
     return count;
 }
 

@@ -1,6 +1,6 @@
 #ifndef _UTILS_CPP_
 #define _UTILS_CPP_
-#include "Vertex.h"
+
 #include "Point.h"
 #include <vector>
 #include <cmath>
@@ -76,10 +76,6 @@ float static moduleSquared(const Point &v) {
     return (pow(v.x, 2) + pow(v.y,2));
 }
 
-float static dist(const Point &p1, const Point &p2) {
-    return sqrt(pow(p1.x-p2.x,2) + pow(p1.y-p2.y,2));
-}
-
 float static angleBetweenVectors(const Point &v1, const Point &v2) {
     float dotP = dotProduct(v1, v2);
     float crossP = crossProduct(v1, v2);
@@ -126,21 +122,46 @@ bool static sameSegment(const int p1, const int p2, const int p3, const int p4) 
 //Una diagonal se puede agregar si y solo si:
 // I) No intersecta a ningun segmento del poligno
 // II) Es interna al poligono
-bool static diagonalInsidePolygon(std::vector<Vertex *> polygon, unsigned int index_p1, unsigned int index_p2) {
+bool static diagonalInsidePolygon(std::vector<Point> polygon, Point p1, Point p2) {
     if (polygon.size() <= 3) //Poligono muy chico, imposible agregar diagonal
         return false;
      
-        
+    //Primero vamos a encontrar los indices de p1 y p2 dentro de polygon
+    //Los inicializamos con not_found primero
+    int index_p1 = -1; //indice de p1 dentro de polygon
+    int index_p2 = -1; //indice de p2 dentro de polygon
+    for (unsigned int i = 0; i < polygon.size(); i++) {
+        //actualizamos los indices si es que los encontramos y no los habiamos encontrado ya
+        if (index_p1 == -1 and polygon[i] == p1) 
+            index_p1 = i;
+        if (index_p2 == -1 and polygon[i] == p2) 
+            index_p2 = i;
+    }
+    std::cout<<index_p1<<' '<<index_p2<<'\n';
+    if (index_p1 == -1) {
+        std::cout<<"ERROR: No se pudo encontrar p1 = "; 
+        //p1.print(true);
+        return false;
+    }
+    if (index_p2 == -1) {
+        std::cout<<"ERROR: No se pudo encontrar p2 = "; 
+        //p2.print(true);
+        return false;
+    }
+    
     //Ahora dejamos en index_p1 el indice menor. Si la diagonal estaba al reves
     //(el indice del primer punto es mayor que el segundo), hay que intercambiar
     if (index_p1 > index_p2) {
-        unsigned int temp = index_p1;
+        int temp = index_p1;
         index_p1 = index_p2;
         index_p2 = temp;
+        Point tempp = p1;
+        p1 = p2;
+        p2 = tempp;
     }
     
     if ((index_p2 == index_p1+1) or (index_p2 == polygon.size()-1 and index_p1 == 0)) {
-        //std::cout<<"p1 y p2 son adyacentes. Retorna false\n";
+        std::cout<<"p1 y p2 son adyacentes. Retorna false\n";
         return false;
     }
 
@@ -152,13 +173,13 @@ bool static diagonalInsidePolygon(std::vector<Vertex *> polygon, unsigned int in
     //Recorremos cada segmento (polygon[i]-polygon[i+1]
     for (unsigned int i = 0; i < polygon.size()-1; i++) {
         //Si la linea p1-p2 se intersecta con p_i-p_(i+1) => no es una diagonal valida
-        if (getLineIntersection(polygon[index_p1]->p, polygon[index_p2]->p, polygon[i]->p, polygon[i+1]->p, intersection, false)) {
+        if (getLineIntersection(p1, p2, polygon[i], polygon[i+1], intersection, false)) {
             std::cout<<"Punto de interseccion = "; intersection.print(true);
             return false;
         }
     }
     //Comprobacion del ultimo con el primero
-    if (getLineIntersection(polygon[index_p1]->p, polygon[index_p2]->p, polygon.back()->p, polygon.front()->p, intersection, false)) {
+    if (getLineIntersection(p1, p2, polygon.back(), polygon.front(), intersection, false)) {
         std::cout<<"Punto de interseccion = "; intersection.print(true);
         return false;
     }
@@ -171,7 +192,7 @@ bool static diagonalInsidePolygon(std::vector<Vertex *> polygon, unsigned int in
     //Ahora debemos comprobar que es interna
     
     //Calculamos el angulo entre p1-p2 y p1-v_i. Notar que p1 es el pivote y por eso va en el medio
-    float angle = angleBetweenSegments(polygon[index_to_use]->p, polygon[index_p1]->p, polygon[index_p2]->p); 
+    float angle = angleBetweenSegments(polygon[index_to_use], p1, p2); 
     
     //std::cout<<"Angle = "<<angle<<'\n';
     //Si el angulo entre p1-p2 y el segmento p_i-pi+1 con p_i = p1 es positivo => diagonal externa

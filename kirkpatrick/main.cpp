@@ -1,5 +1,6 @@
 #include <GL/glut.h>
 #include "Graph.h"
+#include "utils.cpp"
 #include <iostream>
 
 Graph *graph;
@@ -39,6 +40,8 @@ void Mouse_cb(int button, int state, int x, int y){
     
     if (button==GLUT_LEFT_BUTTON and state==GLUT_DOWN){ // boton izquierdo
         y = 480-y;
+        Point P(x,y);
+        graph->deleteNearest(P);
         //kirkpatrick.locatePoint(x,y);
         glutPostRedisplay();
     } // fin botón izquierdo
@@ -60,11 +63,8 @@ void initialize() {
 
 
 int main(int argc, char **argv) {
-    glutInit (&argc, argv);
     graph = new Graph("points.txt", "neighbors.txt", "triangles.txt");
-    
-    //std::cout<<"\n\n\n"; graph.printStructure();
-    
+    glutInit (&argc, argv);
     initialize();
     glutMainLoop();
     return 0;

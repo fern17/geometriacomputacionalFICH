@@ -1,5 +1,14 @@
 #include "Point.h"
 #include <iostream>
+#include <cmath> 
+
+//Constructor vacio, no hace nada
+Point::Point() { }
+
+Point::Point(float _x, float _y) {
+    this->x = _x;
+    this->y = _y;
+}
 
 bool Point::operator ==(const Point &P) {
     return ((fabs(x - P.x) < EPSILON) and (fabs(y - P.y) < EPSILON));
