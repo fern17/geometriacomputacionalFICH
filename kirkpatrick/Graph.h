@@ -4,12 +4,12 @@
 #include "Point.h"
 #include "Vertex.h"
 #include "Triangle.h"
-#include <vector>
+#include <list>
 #include <string>
 
 class Graph {
-    std::vector<Vertex> points;     //Conjunto de puntos del grafo
-    std::vector<Triangle> triangles;//Conjunto de triangulos del grafo
+    std::list<Vertex> points;     //Conjunto de puntos del grafo
+    std::list<Triangle> triangles;//Conjunto de triangulos del grafo
     
     public:
     Graph(std::string f_vertex, std::string f_neighbor, std::string f_triangles);//Lee desde un archivo las coordenadas de los vertices, las vecindades y los triangulos

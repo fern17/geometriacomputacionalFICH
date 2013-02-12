@@ -66,7 +66,7 @@ bool Vertex::isTriangle(Triangle * _newtriangle) {
 //Agrega un vecino a la lista de vecinos
 void Vertex::addNeighbor(Vertex *new_neighbor) {
     if (not isNeighbor(new_neighbor)) { //Si ya no esta en la lista de vecinos
-        std::cerr<<"wololouuuu\n";
+        std::cout<<"Llamando a new neighbor desde ";this->p.print(); std::cout<<" con "; new_neighbor->p.print(true);
         this->neighbors.push_back(new_neighbor); //Ahora son vecinos
         this->degree++;
         new_neighbor->addNeighbor(this);         //Que el otro me agregue como vecino tambien
@@ -105,15 +105,23 @@ bool Vertex::deleteNeighbor(Vertex * neighbor) {
 //Retorna la cantidad de vecinos borrados
 unsigned int Vertex::deleteAllNeighbors() {
     unsigned int count = 0;
+    while(this->neighbors.size()) {
+        std::cout<<"Se borro el punto = "; this->neighbors.front()->p.print(); std::cout<<"\n";
+        bool deleted = this->neighbors.front()->deleteNeighbor(this);
+        if (deleted)
+            count++;
+    }
+    /*
     for (unsigned int i = 0; i < this->neighbors.size(); i++) {
         bool deleted = this->neighbors[i]->deleteNeighbor(this);
         if (deleted)
             count++;
-    }
-    unsigned int new_degree;
+    }*/
+    unsigned int new_degree = this->neighbors.size();
     if (new_degree > 0) {
         std::cout<<"Advertencia. No se borraron todos los vecinos\n";
     }
+    std::cout<<this->degree<<' '<<new_degree<<' '<<count<<'\n';
     this->degree = new_degree;
     return count;
 }
