@@ -20,8 +20,6 @@ Graph::Graph(std::string f_vertex, std::string f_neighbor, std::string f_triangl
     //Lee la cantidad de puntos y reserva el espacio de vecinos en cada Vertex (para evitar problemas de punteros)
     unsigned int cantidad_puntos;
     file_v>>cantidad_puntos;
-    //this->points.reserve(cantidad_puntos);
-    //std::cout<<"Se soportaran "<<cantidad_puntos<<" puntos distintos.\n";
     
     float _x;
     float _y;
@@ -50,6 +48,7 @@ Graph::Graph(std::string f_vertex, std::string f_neighbor, std::string f_triangl
     int value;
     std::string s, line;
     std::stringstream ss, iss;
+    
     std::list<Vertex>::iterator it = this->points.begin();
     unsigned int vertex_processing = 0; 
     std::cout<<"Leyendo vecindades:\n";
@@ -65,9 +64,10 @@ Graph::Graph(std::string f_vertex, std::string f_neighbor, std::string f_triangl
                 std::cout<<"Invalid neighbor: "<<value<<" in line "<<vertex_processing<<"\n";
                 return;
             }
-            std::list<Vertex>::iterator it_nn = this->points.begin(); std::advance(it_nn, value);
-            Vertex *new_neighbor = &*it; //captura su direccion
-            //Vertex *new_neighbor = &this->points[value]; //captura su direccion
+
+            std::list<Vertex>::iterator it_nn = this->points.begin(); 
+            std::advance(it_nn, value);
+            Vertex *new_neighbor = &*it_nn; //captura su direccion
             current_neighbors.push_back(new_neighbor); //agrega el vecino
             ss.str(""); //limpia la string asociada
             ss.clear(); //limpia el stream
@@ -95,19 +95,12 @@ Graph::Graph(std::string f_vertex, std::string f_neighbor, std::string f_triangl
     //Lee la cantidad de triangulos y reserva el espacio en cada Vertex (para evitar problemas de punteros)
     unsigned int cantidad_triangulos;
     file_t>>cantidad_triangulos;
-    //this->triangles.reserve(cantidad_triangulos);
-    //std::cout<<"Se soportaran "<<cantidad_triangulos<<" triangulos distintos.\n";
     std::list<Vertex>::iterator it_tri = this->points.begin();
     while (it_tri != this->points.end()) {
         it->triangles.reserve(cantidad_triangulos);
         it_tri++;
     }
-    /*
-    for (unsigned int i = 0; i < this->points.size(); i++) {
-        this->points[i].triangles.reserve(cantidad_triangulos);
-    }
-    */
-
+    
     unsigned int _p1;
     unsigned int _p2;
     unsigned int _p3;
@@ -143,11 +136,6 @@ Graph::Graph(std::string f_vertex, std::string f_neighbor, std::string f_triangl
         std::advance(it_p,_p3);
         Vertex *v3 = &*it_p;
 
-        /*
-        Vertex *v1 = &this->points[_p1]; 
-        Vertex *v2 = &this->points[_p2]; 
-        Vertex *v3 = &this->points[_p3]; 
-        */
         //Crea el triangulo
         Triangle tri (v1,v2,v3);
         
@@ -217,23 +205,22 @@ bool Graph::deletePoint(Point &P) {
     if (position == -1) 
         return false; //Point no encontrado
     else {
-        std::cout<<"Se borrara el punto "<<position<<"\n"; 
+        std::cout<<"Se borrara el punto "<<position<<" = "; P.print(true);
         
         //Retriangula basado en la posicion de P
         std::list<Vertex>::iterator it = this->points.begin();
         std::advance(it, position);
         Vertex *point_to_triangulate = &*it;
+        std::cout<<"Comenzando retriangulacion.\n";
         this->retriangulate(point_to_triangulate);
         //this->retriangulate(&points[position]);
-        std::cout<<"\nSe pudo retriangular con exito\n";
+        std::cout<<"\nTriangulacion finalizada.\n";
         
         //Borra todos los enlaces de P con sus vecinos
         unsigned int count_of_deleted_neighbors = it->deleteAllNeighbors();
-        //unsigned int count_of_deleted_neighbors = this->points[position].deleteAllNeighbors();
         std::cout<<"Se borraron "<<count_of_deleted_neighbors<<" vecinos del punto "; P.print(true);
         
         //Borra a P de la estructura
-        //this->points.erase(this->points.begin()+position);
         this->points.erase(it);
         return true;
     }
@@ -241,13 +228,17 @@ bool Graph::deletePoint(Point &P) {
 
 //Dado un poligono, encuentra una diagonal valida y retorna sus indices por referencia
 bool Graph::findValidDiagonal(std::vector<Vertex *> polygon, unsigned int &p1, unsigned int &p2) {
+    std::cout<<"Poligono = ";
+    for(unsigned int i = 0; i < polygon.size(); i++) {
+        polygon[i]->p.print(false);
+    }
     unsigned int polysize = polygon.size();
     for (unsigned int i = 0; i < polysize; i++) {
         for (unsigned int j = i+1; j < polysize; j++) {
             if(utils::diagonalInsidePolygon(polygon, i, j)) {
                 p1 = i;
                 p2 = j;
-                //std::cout<<"Se encontro la diagonal=\n"; polygon[p1]->print(); polygon[p2]->print();
+                std::cout<<"Se encontro la diagonal="<<i<<' '<<j<<'\n'; polygon[p1]->print(); polygon[p2]->print();
                 return true;
             }
         }
@@ -264,11 +255,11 @@ void Graph::retriangulate(std::vector<Vertex *> polygon) {
     unsigned int p2;
     //encuentra UNA diagonal valida para agregar
     if (this->findValidDiagonal(polygon, p1, p2)) {
-        polygon[p1]->addNeighbor(polygon[p2]); //agrega un nuevo vecino
+        std::cout<<"Se triangulara por la diagonal "; polygon[p1]->p.print(); std::cout<<" "; polygon[p2]->p.print(true); 
+        polygon[p1]->addNeighborCCW(polygon[p2]); //agrega un nuevo vecino
         
         std::vector<Vertex *> p1p2; //Polygono que va desde p1 a p2 CCW
         std::vector<Vertex *> p2p1; //Poligono que va desde p2 a p1 CCW
-        std::cout<<"Se triangulara por la diagonal "; polygon[p1]->p.print(); std::cout<<" "; polygon[p2]->p.print(true); 
         //separar poligono en p1p2 y p2p1
         unsigned int index;
         index = p1;
@@ -333,14 +324,6 @@ int Graph::searchPoint(const Point &P) {
         posi++;
     }
     return -1;
-    /*
-    for (unsigned int i = 0; i < this->points.size(); i++) {
-        if (this->points[i].p == P) {
-            return i;
-        }
-    }
-    return -1;
-    */
 }
 
 void Graph::drawPoints() {
@@ -350,12 +333,6 @@ void Graph::drawPoints() {
         glVertex2f(it->p.x, it->p.y);
         it++;
     }
-    /*
-    for (unsigned int i = 0; i < this->points.size(); i++) {
-        Vertex *v = &this->points[i];
-        glVertex2f(v->p.x, v->p.y);
-    }
-    */
     glEnd();
 }
 
@@ -363,7 +340,7 @@ void Graph::drawLines() {
     glBegin(GL_LINES);
     std::list<Vertex>::iterator v_it = this->points.begin();
     while (v_it != this->points.end()) {
-        v_it->print();
+        //v_it->print();
         unsigned int cantidad_vecinos = v_it->neighbors.size();
         for (unsigned int j = 0; j < cantidad_vecinos; j++) {
             Vertex *u = v_it->neighbors[j];
@@ -372,48 +349,27 @@ void Graph::drawLines() {
         }
         v_it++;
     }
-    /*  
-    for (unsigned int i = 0; i < this->points.size(); i++) {
-        Vertex *v = &this->points[i];
-        v->print(); 
-        unsigned int cantidad_vecinos = v->neighbors.size();
-        for (unsigned int j = 0; j < cantidad_vecinos; j++) {
-            Vertex *u = v->neighbors[j];
-            glVertex2f(v->p.x, v->p.y);
-            glVertex2f(u->p.x, u->p.y);
-        }
-    }*/
     glEnd();
 }
 
 //borra el vertice mas cercano a P
 void Graph::deleteNearest(Point &P) {
-    
+    std::cout<<"\n\n\n\n\n"; 
     unsigned int nearest = 0;
     unsigned int pos = 0;
     float current_distance = utils::dist(P, this->points.front().p);
-    std::list<Vertex>::iterator it = this->points.begin(); it++; //empieza desde le segundo valor
+    std::list<Vertex>::iterator it = this->points.begin(); it++; //empieza desde el segundo valor
+    Point point_to_delete;
     while (it != this->points.end()) {
         float new_dist = utils::dist(P, it->p);
         if (new_dist < current_distance) {
             nearest = pos;
             current_distance = new_dist;
+            point_to_delete = it->p;
         } 
         pos++;
         it++;
     }
-    std::list<Vertex>::iterator it_todelete = this->points.begin();
-    std::advance(it_todelete, nearest);
-    Point point_to_delete = it_todelete->p;
+    
     this->deletePoint(point_to_delete);
-    /* 
-    for (unsigned int i = 1; i < this->points.size(); i++) {
-        float new_dist = utils::dist(P, this->points[i].p);
-        if (new_dist < current_distance) {
-            nearest = i;
-            current_distance = new_dist;
-        }
-    }
-    this->deletePoint(this->points[nearest].p);
-    */
 }

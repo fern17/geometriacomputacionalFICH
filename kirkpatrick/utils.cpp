@@ -10,6 +10,8 @@
 
 namespace utils{
 
+const static float RADIAN = 180/M_PI;
+
 // Returns 1 if the lines intersect, otherwise 0. In addition, if the lines 
 // intersect the intersection point may be stored in intersection
 bool static getLineIntersection(Point p0, Point p1, Point p2, Point p3, Point &intersection, bool lessequal = true) {
@@ -80,10 +82,21 @@ float static dist(const Point &p1, const Point &p2) {
     return sqrt(pow(p1.x-p2.x,2) + pow(p1.y-p2.y,2));
 }
 
+float static angleVectors(Point &v1, Point &v2) {
+    Point res = v2-v1;
+    float angle = atan2(res.y,res.x) * RADIAN;
+    if (angle < 0)
+        angle = angle+360;
+    return angle;
+}
+
 float static angleBetweenVectors(const Point &v1, const Point &v2) {
+    return (atan2(v2.y,v2.x) - atan2(v1.y,v1.x))*RADIAN;
+    /*
     float dotP = dotProduct(v1, v2);
     float crossP = crossProduct(v1, v2);
     return atan(dotP/crossP);
+    */
 }
 //calcula el angulo angle(p1,p2,p3), donde p2 es el punto en comun
 float static angleBetweenSegments(Point p1, Point p2, Point p3) {

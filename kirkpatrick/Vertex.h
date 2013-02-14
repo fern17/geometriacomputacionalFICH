@@ -16,6 +16,7 @@ class Vertex{
     bool addTriangle(Triangle * _newtriangle);  //agrega un triangulo en la lista, solo si no lo tenia ya
     bool isTriangle(Triangle * _newtriangle);   //true si ya tiene a este triangulo en la lista de triangulos a los que pertenece
     void addNeighbor(Vertex * _newneighbor);    //Agrega un vecino a la lista de vecinos
+    void addNeighborCCW(Vertex *new_neighbor); //Agrega un vecino a la lista de vecinos pero lo ubica de manera que el array quede ordenado
     void setNeighbors(std::vector<Vertex *> _newneighbors); //Agrega TODOS los vecinos a la lista de vecinos
     bool isNeighbor(Vertex * neighbor);         //Dado un vertice, se fija si es vecino
     bool deleteNeighbor(Vertex * neighbor);     //Borra un vecino de la lista de vecinos. 

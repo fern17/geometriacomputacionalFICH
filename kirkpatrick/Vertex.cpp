@@ -1,9 +1,9 @@
 #include "Vertex.h"
 #include "Point.h"
 #include "Triangle.h"
+#include "utils.cpp" 
 #include <vector>
 #include <iostream>
-
 //Constructor
 Vertex::Vertex(float _x, float _y) {
     this->p.x = _x;
@@ -22,54 +22,83 @@ void Vertex::print() {
         this->neighbors[i]->p.print(false); 
         std::cout<<" ";
     }
-    std::cout<<"\n";
-    
-    std::cout<<"Triangulos: \n"; 
-    for (unsigned int i = 0; i < this->triangles.size(); i++) {
-        std::cout<<"t #"<<i<<" "; this->triangles[i]->print(true);
-    }
+std::cout<<"\n";
+
+std::cout<<"Triangulos: \n"; 
+for (unsigned int i = 0; i < this->triangles.size(); i++) {
+    std::cout<<"t #"<<i<<" "; this->triangles[i]->print(true);
+}
 }
 
 
 //Agrega TODOS los vecinos a la lista de vecinos
 void Vertex::setNeighbors(std::vector<Vertex *> _newneighbors) {
-    if (this->degree > 0) {
-        std::cout<<"ERROR: ya se tienen vecinos. Borrando\n";
-        this->neighbors.clear();
-    }
-    for (unsigned int i = 0; i < _newneighbors.size(); i++) {
-        this->neighbors.push_back(_newneighbors[i]);
-    }
-    this->degree = this->neighbors.size();
+if (this->degree > 0) {
+    std::cout<<"ERROR: ya se tienen vecinos. Borrando\n";
+    this->neighbors.clear();
+}
+for (unsigned int i = 0; i < _newneighbors.size(); i++) {
+    this->neighbors.push_back(_newneighbors[i]);
+}
+this->degree = this->neighbors.size();
 }
 
 //Agrega un triangulo a la lista de triangulos
 bool Vertex::addTriangle(Triangle * _newtriangle) {
-    if (not isTriangle(_newtriangle)) { //si ya no lo habia agregado antes
-        this->triangles.push_back(_newtriangle);
-        return true;
-    }
-    else 
-        return false;
+if (not isTriangle(_newtriangle)) { //si ya no lo habia agregado antes
+    this->triangles.push_back(_newtriangle);
+    return true;
+}
+else 
+    return false;
 }
 
 //Retorna true si este vertice ya lo tiene como vecino al triangulo de argumento
 bool Vertex::isTriangle(Triangle * _newtriangle) {
-    for (unsigned int i = 0; i < this->triangles.size(); i++) {
-        if (this->triangles[i] == _newtriangle) { //compara direcciones
-            return true;
-        }
+for (unsigned int i = 0; i < this->triangles.size(); i++) {
+    if (this->triangles[i] == _newtriangle) { //compara direcciones
+        return true;
     }
-    return false;
+}
+return false;
 }
 
 //Agrega un vecino a la lista de vecinos
 void Vertex::addNeighbor(Vertex *new_neighbor) {
+if (not isNeighbor(new_neighbor)) { //Si ya no esta en la lista de vecinos
+    std::cout<<"Llamando a addNeighbor desde ";this->p.print(); std::cout<<" con "; new_neighbor->p.print(true);
+    this->neighbors.push_back(new_neighbor); //Ahora son vecinos
+    this->degree++;
+    new_neighbor->addNeighbor(this);         //Que el otro me agregue como vecino tambien
+}
+}
+
+//Agrega un vecino a la lista de vecinos pero lo inserta en la posición angular necesaria para mantener la relación CCW
+void Vertex::addNeighborCCW(Vertex *new_neighbor) {
     if (not isNeighbor(new_neighbor)) { //Si ya no esta en la lista de vecinos
-        std::cout<<"Llamando a new neighbor desde ";this->p.print(); std::cout<<" con "; new_neighbor->p.print(true);
-        this->neighbors.push_back(new_neighbor); //Ahora son vecinos
+        std::cout<<"Llamando a addNeighborCCW desde ";this->p.print(); std::cout<<" con "; new_neighbor->p.print(true);
+        Point reference = this->p; //el punto de referencia va a ser yo mismo
+        //calcula el angulo entre el punto que quiero agregar y el de referencia (yo mismo)
+        float angle_with_nn = utils::angleVectors(reference, new_neighbor->p); 
+        std::cout<<"angulo con nn = "<<angle_with_nn; 
+        //Ahora buscara donde ubicarlo:
+        // Para ello, busca dónde ubicar new_neighbor de manera que el vector de vecinos quede ordenado con respecto al angulo que forma con reference.
+        // De esta manera, se mantiene la invariante de CCW
+        unsigned int current_pos = 0;
+        for (; current_pos < this->neighbors.size(); current_pos++) {
+            Point current_point = this->neighbors[current_pos]->p;
+            float current_angle = utils::angleVectors(reference, current_point);
+            std::cout<<"\nangulo con current_pos ("<<current_pos<<") = "<<current_angle; 
+            if (current_angle >= angle_with_nn ) { //si me pase del angulo, salgo
+                break;
+            }
+        }
+        std::cout<<"\n";
+        //En current_pos quedo guardada la posicion donde insertarlo
+
+        this->neighbors.insert(this->neighbors.begin()+current_pos, new_neighbor); //Ahora son vecinos en la posicion correcta
         this->degree++;
-        new_neighbor->addNeighbor(this);         //Que el otro me agregue como vecino tambien
+        new_neighbor->addNeighborCCW(this);         //Que el otro me agregue como vecino tambien
     }
 }
 
@@ -106,22 +135,15 @@ bool Vertex::deleteNeighbor(Vertex * neighbor) {
 unsigned int Vertex::deleteAllNeighbors() {
     unsigned int count = 0;
     while(this->neighbors.size()) {
-        std::cout<<"Se borro el punto = "; this->neighbors.front()->p.print(); std::cout<<"\n";
+        std::cout<<"Se borro el enlace con el punto = "; this->neighbors.front()->p.print(); std::cout<<'\n';
         bool deleted = this->neighbors.front()->deleteNeighbor(this);
         if (deleted)
             count++;
     }
-    /*
-    for (unsigned int i = 0; i < this->neighbors.size(); i++) {
-        bool deleted = this->neighbors[i]->deleteNeighbor(this);
-        if (deleted)
-            count++;
-    }*/
     unsigned int new_degree = this->neighbors.size();
     if (new_degree > 0) {
         std::cout<<"Advertencia. No se borraron todos los vecinos\n";
     }
-    std::cout<<this->degree<<' '<<new_degree<<' '<<count<<'\n';
     this->degree = new_degree;
     return count;
 }

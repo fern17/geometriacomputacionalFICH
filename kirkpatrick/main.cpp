@@ -30,7 +30,6 @@ void display_cb() {
     glLineWidth(1);
     glColor3f(0,0,1);
     graph->drawLines();
-    
     glutSwapBuffers();
 }
 
@@ -42,6 +41,7 @@ void Mouse_cb(int button, int state, int x, int y){
         y = 480-y;
         Point P(x,y);
         graph->deleteNearest(P);
+        graph->printStructure();
         //kirkpatrick.locatePoint(x,y);
         glutPostRedisplay();
     } // fin botón izquierdo
@@ -64,6 +64,7 @@ void initialize() {
 
 int main(int argc, char **argv) {
     graph = new Graph("points.txt", "neighbors.txt", "triangles.txt");
+    //graph->printStructure();
     glutInit (&argc, argv);
     initialize();
     glutMainLoop();
