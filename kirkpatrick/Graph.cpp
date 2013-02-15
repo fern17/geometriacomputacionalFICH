@@ -213,12 +213,30 @@ bool Graph::deletePoint(Point &P) {
         Vertex *point_to_triangulate = &*it;
         std::cout<<"Comenzando retriangulacion.\n";
         this->retriangulate(point_to_triangulate);
-        //this->retriangulate(&points[position]);
         std::cout<<"\nTriangulacion finalizada.\n";
-        
+    
+        //realiza una copia de los vecinos para borrar los triangulos luego
+        std::vector<Vertex *> copy_of_neighbors = it->neighbors;
         //Borra todos los enlaces de P con sus vecinos
         unsigned int count_of_deleted_neighbors = it->deleteAllNeighbors();
+
         std::cout<<"Se borraron "<<count_of_deleted_neighbors<<" vecinos del punto "; P.print(true);
+        
+        /*
+        //Borrara todos los triangulos
+        //Para cada vecino
+        for (unsigned int i = 0; i < copy_of_neighbors.size(); i++) {
+            //Para cada triangulo
+            std::list<Triangle>::iterator t_it = this->triangles.begin();
+            while (t_it != this->triangles.end() ) {
+                Triangle tri = *t_it;
+                if(tri.isSegment(&*it, copy_of_neighbors[i])) {//si it y i forman el lado del triangulo j
+                    t_it = this->triangles.erase(t_it);
+                }
+                t_it++;
+            }
+        }*/
+        
         
         //Borra a P de la estructura
         this->points.erase(it);
@@ -249,8 +267,24 @@ bool Graph::findValidDiagonal(std::vector<Vertex *> polygon, unsigned int &p1, u
 
 //Retriangula recursivamente
 void Graph::retriangulate(std::vector<Vertex *> polygon) {
-    if (polygon.size() <= 3) 
+    unsigned int polysize = polygon.size();
+    if (polysize < 3) 
         return; //no hay mas diagonales validas
+    if (polysize == 3) { //aca tengo un triangulo, debo agregarlo a la lista de triangulos de los vertices
+        /* 
+        Vertex *tp1 = polygon[0];
+        Vertex *tp2 = polygon[1];
+        Vertex *tp3 = polygon[2];
+        Triangle tri(tp1, tp2, tp3);
+        this->triangles.push_back(tri);
+        Triangle *ptri = &this->triangles.back();
+        tp1->triangles.push_back(ptri);
+        tp2->triangles.push_back(ptri);
+        tp3->triangles.push_back(ptri);
+        */
+        return;
+    }
+
     unsigned int p1;
     unsigned int p2;
     //encuentra UNA diagonal valida para agregar
