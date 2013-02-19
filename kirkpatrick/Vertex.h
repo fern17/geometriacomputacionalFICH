@@ -25,8 +25,9 @@ class Vertex{
         //Retorna la cantidad de vecinos borrados.
     bool operator == (const Vertex &V);         //Igualdad con respecto al punto p
     int searchNeighbor(Vertex *V);              //Dado un vecino, devuelve la posicion donde esta en el vector de vecinos
+    bool deleteTriangle(Triangle *tri);         //Dado un triangulo, lo borra de la lista de triangulos. Retorna true si lo pudo borrar
     void deleteTriangles(Vertex *related_to); //Le digo a mis vecinos que borre todos los triangulos que nos tienen como lado
-    std::vector<unsigned int> findTriangles(Vertex *related_to); //Dado un vertice, devuelve los indices en el array de triangulos donde se halla 
+    std::vector<Triangle *> findTriangles(Vertex *related_to); //Dado un vertice, devuelve los indices en el array de triangulos donde se halla 
                                                                 //un triangulo que tiene a this y related_to como lado
 
 }; 

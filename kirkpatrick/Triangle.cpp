@@ -26,3 +26,22 @@ bool Triangle::isSegment(Vertex *v1, Vertex *v2) {
     }
     return false;
 }
+
+//Borra la referencia de los puntos a este triangulo
+void Triangle::deleteAllPoints() {
+    bool res1 = p1->deleteTriangle(this);
+    bool res2 = p2->deleteTriangle(this);
+    bool res3 = p3->deleteTriangle(this);
+    std::cout<<"Procesando el triangulo: ";
+    this->print(true);
+
+    if (res1) {
+        std::cout<<"Advertencia: no se pudo borrar el triangulo de p1\n";
+    }
+    if (res2) {
+        std::cout<<"Advertencia: no se pudo borrar el triangulo de p2\n";
+    }
+    if (res3) {
+        std::cout<<"Advertencia: no se pudo borrar el triangulo de p3\n";
+    }
+}

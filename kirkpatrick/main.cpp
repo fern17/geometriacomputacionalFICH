@@ -41,7 +41,7 @@ void Mouse_cb(int button, int state, int x, int y){
         y = 480-y;
         Point P(x,y);
         graph->deleteNearest(P);
-        //graph->printStructure();
+        graph->printStructure();
         //kirkpatrick.locatePoint(x,y);
         glutPostRedisplay();
     } // fin botón izquierdo

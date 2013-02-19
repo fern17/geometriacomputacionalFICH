@@ -207,12 +207,7 @@ bool Graph::deletePoint(Point &P) {
     
         //realiza una copia de los vecinos para borrar los triangulos luego
         std::vector<Vertex *> copy_of_neighbors = it->neighbors;
-        //Borra todos los enlaces de P con sus vecinos
-        unsigned int count_of_deleted_neighbors = it->deleteAllNeighbors();
-
-        std::cout<<"Se borraron "<<count_of_deleted_neighbors<<" vecinos del punto "; P.print(true);
-        
-        /* @TODO FIX
+         
         //Borrara todos los triangulos
         //Para cada vecino
         for (unsigned int i = 0; i < copy_of_neighbors.size(); i++) {
@@ -221,12 +216,20 @@ bool Graph::deletePoint(Point &P) {
             while (t_it != this->triangles.end() ) {
                 Triangle tri = *t_it;
                 if(tri.isSegment(&*it, copy_of_neighbors[i])) {//si it y i forman el lado del triangulo j
+                    //debe borrar el triangulo de la lista de todos los vertices
+                    //it->deleteTriangles(copy_of_neighbors[i]);
+                    //copy_of_neighbors[i]->deleteTriangles(&*it);
+                    t_it->deleteAllPoints();
                     t_it = this->triangles.erase(t_it);
                 }
-                t_it++;
+                else 
+                    t_it++;
             }
-        }*/
+        }
         
+        //Borra todos los enlaces de P con sus vecinos
+        unsigned int count_of_deleted_neighbors = it->deleteAllNeighbors();
+        std::cout<<"Se borraron "<<count_of_deleted_neighbors<<" vecinos del punto "; P.print(true);
         
         //Borra a P de la estructura
         this->points.erase(it);
@@ -263,17 +266,19 @@ void Graph::retriangulate(std::vector<Vertex *> polygon) {
     if (polysize < 3) 
         return; //no hay mas diagonales validas
     if (polysize == 3) { //aca tengo un triangulo, debo agregarlo a la lista de triangulos de los vertices
-        /*@TODO FIX 
         Vertex *tp1 = polygon[0];
         Vertex *tp2 = polygon[1];
         Vertex *tp3 = polygon[2];
         Triangle tri(tp1, tp2, tp3);
+        
         this->triangles.push_back(tri);
         Triangle *ptri = &this->triangles.back();
+
+        std::cout<<"Se agrega el triangulo "; ptri->print();
+        
         tp1->triangles.push_back(ptri);
         tp2->triangles.push_back(ptri);
         tp3->triangles.push_back(ptri);
-        */
         return;
     }
 
