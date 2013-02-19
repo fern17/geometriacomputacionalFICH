@@ -173,11 +173,6 @@ void Graph::printStructure() {
         pos++;
         p++;
     }
-    /*
-    for (unsigned int i = 0; i < this->points.size(); i++) {
-        std::cout<<"#"<<i<<" "; this->points[i].print(); std::cout<<"\n";
-    }
-    */
     std::cout<<"---------------------------------------------\n";
 
     std::cout<<"Triangulos:\n";
@@ -191,11 +186,6 @@ void Graph::printStructure() {
         q++;
     }
 
-   /*
-    for (unsigned int i = 0; i < this->triangles.size(); i++) {
-        std::cout<<"#"<<i<<" "; this->triangles[i].print(true);
-    }
-    */
 }
 
 //Borra un punto. Llama a retriangulate primero, y luego lo borra cuando nadie lo referencia
@@ -222,7 +212,7 @@ bool Graph::deletePoint(Point &P) {
 
         std::cout<<"Se borraron "<<count_of_deleted_neighbors<<" vecinos del punto "; P.print(true);
         
-        /*
+        /* @TODO FIX
         //Borrara todos los triangulos
         //Para cada vecino
         for (unsigned int i = 0; i < copy_of_neighbors.size(); i++) {
@@ -247,12 +237,14 @@ bool Graph::deletePoint(Point &P) {
 //Dado un poligono, encuentra una diagonal valida y retorna sus indices por referencia
 bool Graph::findValidDiagonal(std::vector<Vertex *> polygon, unsigned int &p1, unsigned int &p2) {
     std::cout<<"Poligono = ";
-    for(unsigned int i = 0; i < polygon.size(); i++) {
+    for(unsigned int i = 0; i < polygon.size(); i++) 
         polygon[i]->p.print(false);
-    }
+    
     unsigned int polysize = polygon.size();
     for (unsigned int i = 0; i < polysize; i++) {
-        for (unsigned int j = i+1; j < polysize; j++) {
+        for (unsigned int j = i+2; j < polysize; j++) {
+            std::cout<<"Probando con ";
+            polygon[i]->p.print(); polygon[j]->p.print();
             if(utils::diagonalInsidePolygon(polygon, i, j)) {
                 p1 = i;
                 p2 = j;
@@ -271,7 +263,7 @@ void Graph::retriangulate(std::vector<Vertex *> polygon) {
     if (polysize < 3) 
         return; //no hay mas diagonales validas
     if (polysize == 3) { //aca tengo un triangulo, debo agregarlo a la lista de triangulos de los vertices
-        /* 
+        /*@TODO FIX 
         Vertex *tp1 = polygon[0];
         Vertex *tp2 = polygon[1];
         Vertex *tp3 = polygon[2];

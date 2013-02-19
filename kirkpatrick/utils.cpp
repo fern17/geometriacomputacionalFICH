@@ -105,6 +105,8 @@ float static angleBetweenSegments(Point p1, Point p2, Point p3) {
     Point v2;
     v1 = p1 - p2;
     v2 = p3 - p2;
+    v1.print(false);
+    v2.print(false);
     //Ahora calculamos el angulo teniendo los dos vectores
     return angleBetweenVectors(v1, v2);
 }
@@ -132,6 +134,24 @@ bool static sameSegment(const int p1, const int p2, const int p3, const int p4) 
         return false;
 }
 */
+
+//Prueba si V3 esta entre V1 y V2 CCW
+//http://stackoverflow.com/questions/693806/how-to-determine-whether-v3-is-between-v1-and-v2-when-we-go-from-v1-to-v2-counte/693969#693969
+bool static vectorBetweenCCW(Point V3, Point V1, Point V2) {
+    float c12 = crossProduct(V1,V2);
+    float c13 = crossProduct(V1,V3);
+    float c32 = crossProduct(V3,V2);
+    //Signos de los productos
+    bool c12p = c12 >= 0;
+    bool c13p = c13 >= 0;
+    bool c32p = c32 >= 0;
+    if (  (c12p and c13p and c32p) or //si los 3 son positivos
+          ((not c12p) and (c13p and c32p))){ //c12 negativo pero c13 and c32 positivo
+        return true;
+    } else { 
+        return false;
+    }
+}
 
 //Dada una lista de puntos en CCW y 2 puntos p1,p2. 
 //Retorna true si se puede agregar una diagonal.
@@ -177,25 +197,52 @@ bool static diagonalInsidePolygon(std::vector<Vertex *> polygon, unsigned int in
     }
     
     //Hasta aquí, sabemos que la diagonal p1-p2 no se intersecta con ningun segmento del poligono ni es igual a un lado
+    
+    /*
     unsigned int index_to_use = index_p1 + 1;
     if (index_to_use >= polygon.size())//index_p1 es justo el ultimo del poligono
         index_to_use = 0;//usamos el primero entonces
     
     //Ahora debemos comprobar que es interna
-    
+   
+    polygon[index_to_use]->p.print(true); 
+    polygon[index_p1]->p.print(true); 
+    polygon[index_p2]->p.print(true); 
     //Calculamos el angulo entre p1-p2 y p1-v_i. Notar que p1 es el pivote y por eso va en el medio
     float angle = angleBetweenSegments(polygon[index_to_use]->p, polygon[index_p1]->p, polygon[index_p2]->p); 
-    
-    //std::cout<<"Angle = "<<angle<<'\n';
+    std::cout<<"Angle = "<<angle<<'\n';
     //Si el angulo entre p1-p2 y el segmento p_i-pi+1 con p_i = p1 es positivo => diagonal externa
     if (angle > 0) {
-        //std::cout<<"Angulo positivo\n";
+        //std::cout<<index_p1<<' '<<index_p2<<'\n';
+        std::cout<<"Angulo positivo\n";
         return true;
     }
     else
         return false;
-}
+    */
 
+    unsigned int index_next;
+    if (index_p1 == polygon.size()-1)//index_p1 es justo el ultimo del poligono
+        index_next = 0;//usamos el primero entonces
+    else
+        index_next = index_p1 + 1;
+
+    unsigned int index_prev;
+    if( index_p1 == 0)
+        index_prev = polygon.size()-1;//index_p1 es justo el primero del poligono
+    else
+        index_prev = index_p1 - 1;
+
+    Point v1 = polygon[index_next]->p - polygon[index_p1]->p;
+    Point v2 = polygon[index_prev]->p - polygon[index_p1]->p;
+    Point v3 = polygon[index_p2]->p - polygon[index_p1]->p;
+
+    if (vectorBetweenCCW(v3, v1, v2)) {
+        return true;
+    } else {
+        return false;
+    }
+}
 
 
 };
