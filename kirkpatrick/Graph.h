@@ -14,7 +14,7 @@ class Graph {
     public:
     Graph(std::string f_vertex, std::string f_neighbor, std::string f_triangles);//Lee desde un archivo las coordenadas de los vertices, las vecindades y los triangulos
     void printStructure(); //imprime la estructura completa
-    
+    unsigned int size();    
     //retriangulacion
     bool findValidDiagonal(std::vector<Vertex *> polygon, unsigned int &p1, unsigned int &p2); //encuentra una diagonal valida en polygon
     void retriangulate(std::vector<Vertex *> polygon); //retriangula recursivamente el poligno
@@ -28,6 +28,7 @@ class Graph {
     void deleteNearest(Point &P);
 
     //Kirkpatrick
+    void kirkpatrickDeletion(unsigned int max_degree);
     void unmarkAllVertex();
     std::vector<Vertex *> selectVertexToDelete(unsigned int max_degree);
     
