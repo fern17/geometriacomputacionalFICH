@@ -3,7 +3,10 @@
 #include "utils.cpp"
 #include <iostream>
 
+static const unsigned int MAX_DEGREE = 8;
+
 Graph *graph;
+
 
 //Cosas de OPENGL
 //Callback de Resize
@@ -64,11 +67,21 @@ void initialize() {
 
 int main(int argc, char **argv) {
     graph = new Graph("points.txt", "neighbors.txt", "triangles.txt");
-    
-    std::vector<Vertex *> vertex_to_delete = graph->selectVertexToDelete(9);
-    for (unsigned int i = 0; i < vertex_to_delete.size(); i++) {
-        graph->deleteVertex(vertex_to_delete[i]);
+  
+    for (unsigned int j = 0; j < 3; j++) {
+        std::vector<Vertex *> vertex_to_delete = graph->selectVertexToDelete(MAX_DEGREE);
+        
+        std::cout<<"\n\n\n\nImpresion de los puntos seleccionados: ";
+        for (unsigned int j = 0; j < vertex_to_delete.size(); j++) 
+            vertex_to_delete[j]->p.print(false);
+        std::cout<<"\nFin de impresion\n";
+        
+        for (unsigned int i = 0; i < vertex_to_delete.size(); i++) {
+            graph->deleteVertex(vertex_to_delete[i]);
+        }
     }
+    
+    graph->printStructure();
     glutInit (&argc, argv);
     initialize();
     glutMainLoop();

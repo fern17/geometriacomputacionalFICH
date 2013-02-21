@@ -182,11 +182,51 @@ void Graph::printStructure() {
     std::list<Triangle>::iterator q = this->triangles.begin();
     unsigned int pos2 = 0;
     while (q != this->triangles.end()) {
-        std::cout<<"#"<<pos2<<" "; q->print(true); std::cout<<"\n";
+        std::cout<<"#"<<pos2<<" "; q->print(true); 
         pos2++;
         q++;
     }
 
+}
+
+void Graph::drawPoints() {
+    glBegin(GL_POINTS);
+    std::list<Vertex>::iterator it = this->points.begin();
+    while(it != this->points.end()) {
+        glVertex2f(it->p.x, it->p.y);
+        it++;
+    }
+    glEnd();
+}
+
+void Graph::drawLines() {
+    glBegin(GL_LINES);
+    std::list<Vertex>::iterator v_it = this->points.begin();
+    while (v_it != this->points.end()) {
+        //v_it->print();
+        unsigned int cantidad_vecinos = v_it->neighbors.size();
+        for (unsigned int j = 0; j < cantidad_vecinos; j++) {
+            Vertex *u = v_it->neighbors[j];
+            glVertex2f(v_it->p.x, v_it->p.y);
+            glVertex2f(u->p.x, u->p.y);
+        }
+        v_it++;
+    }
+    glEnd();
+}
+
+//Dado un punto, busca el vertice que lo referencia. 
+//Retorna el indice en el vector de vertices o -1 si nadie lo referencia (no se encontro)
+int Graph::searchPoint(const Point &P) {
+    int posi = 0;
+    std::list<Vertex>::iterator it = this->points.begin();
+    while(it != this->points.end()) {
+        if (it->p == P)
+            return posi;
+        it++;
+        posi++;
+    }
+    return -1;
 }
 
 bool Graph::deletePoint(Point &P) {
@@ -206,10 +246,9 @@ bool Graph::deletePoint(Point &P) {
     }
 }
 
-
-
 //Borra un punto. Llama a retriangulate primero, y luego lo borra cuando nadie lo referencia
 bool Graph::deleteVertex(Vertex *point_to_triangulate) {      
+    std::cout<<"\t\t\t\t\t\t\t\t\t\t\t\tSe borrara el punto = "; point_to_triangulate->p.print(true);
     std::cout<<"Comenzando retriangulacion.\n";
     this->retriangulate(point_to_triangulate);
     std::cout<<"\nTriangulacion finalizada.\n";
@@ -246,28 +285,13 @@ bool Graph::deleteVertex(Vertex *point_to_triangulate) {
     return true;
 }
 
-//Dado un poligono, encuentra una diagonal valida y retorna sus indices por referencia
-bool Graph::findValidDiagonal(std::vector<Vertex *> polygon, unsigned int &p1, unsigned int &p2) {
-    std::cout<<"Poligono = ";
-    for(unsigned int i = 0; i < polygon.size(); i++) 
-        polygon[i]->p.print(false);
-    
-    unsigned int polysize = polygon.size();
-    for (unsigned int i = 0; i < polysize; i++) {
-        for (unsigned int j = i+2; j < polysize; j++) {
-            std::cout<<"Probando con ";
-            polygon[i]->p.print(); polygon[j]->p.print();
-            if(utils::diagonalInsidePolygon(polygon, i, j)) {
-                p1 = i;
-                p2 = j;
-                std::cout<<"Se encontro la diagonal="<<i<<' '<<j<<'\n'; polygon[p1]->print(); polygon[p2]->print();
-                return true;
-            }
-        }
-    }
-    return false;
+//Dado un vertice para borrar, genera nuevas vecindades
+void Graph::retriangulate(Vertex *vertex_to_delete) {
+    //Obtenemos todos los vecinos del vertice a borrar
+    std::vector<Vertex *> neighbors_of_todelete = vertex_to_delete->neighbors;
+    //retriangulamos
+    this->retriangulate(neighbors_of_todelete);
 }
-
 
 //Retriangula recursivamente
 void Graph::retriangulate(std::vector<Vertex *> polygon) {
@@ -283,7 +307,7 @@ void Graph::retriangulate(std::vector<Vertex *> polygon) {
         this->triangles.push_back(tri);
         Triangle *ptri = &this->triangles.back();
 
-        std::cout<<"Se agrega el triangulo "; ptri->print();
+        std::cout<<"Se agrega el triangulo "; ptri->print(true);
         
         tp1->triangles.push_back(ptri);
         tp2->triangles.push_back(ptri);
@@ -334,6 +358,7 @@ void Graph::retriangulate(std::vector<Vertex *> polygon) {
                 break;
             }
         }
+        std::cout<<"\n";
         //Llamar recursivamente a retriangulate con cada mitad
         this->retriangulate(p1p2);
         this->retriangulate(p2p1);
@@ -344,52 +369,27 @@ void Graph::retriangulate(std::vector<Vertex *> polygon) {
 
 }
 
-//Dado un vertice para borrar, genera nuevas vecindades
-void Graph::retriangulate(Vertex *vertex_to_delete) {
-    //Obtenemos todos los vecinos del vertice a borrar
-    std::vector<Vertex *> neighbors_of_todelete = vertex_to_delete->neighbors;
-    //retriangulamos
-    this->retriangulate(neighbors_of_todelete);
-}
-
-//Dado un punto, busca el vertice que lo referencia. 
-//Retorna el indice en el vector de vertices o -1 si nadie lo referencia (no se encontro)
-int Graph::searchPoint(const Point &P) {
-    int posi = 0;
-    std::list<Vertex>::iterator it = this->points.begin();
-    while(it != this->points.end()) {
-        if (it->p == P)
-            return posi;
-        it++;
-        posi++;
-    }
-    return -1;
-}
-
-void Graph::drawPoints() {
-    glBegin(GL_POINTS);
-    std::list<Vertex>::iterator it = this->points.begin();
-    while(it != this->points.end()) {
-        glVertex2f(it->p.x, it->p.y);
-        it++;
-    }
-    glEnd();
-}
-
-void Graph::drawLines() {
-    glBegin(GL_LINES);
-    std::list<Vertex>::iterator v_it = this->points.begin();
-    while (v_it != this->points.end()) {
-        //v_it->print();
-        unsigned int cantidad_vecinos = v_it->neighbors.size();
-        for (unsigned int j = 0; j < cantidad_vecinos; j++) {
-            Vertex *u = v_it->neighbors[j];
-            glVertex2f(v_it->p.x, v_it->p.y);
-            glVertex2f(u->p.x, u->p.y);
+//Dado un poligono, encuentra una diagonal valida y retorna sus indices por referencia
+bool Graph::findValidDiagonal(std::vector<Vertex *> polygon, unsigned int &p1, unsigned int &p2) {
+    std::cout<<"Poligono = ";
+    for(unsigned int i = 0; i < polygon.size(); i++) 
+        polygon[i]->p.print(false);
+    std::cout<<"\n";
+    
+    unsigned int polysize = polygon.size();
+    for (unsigned int i = 0; i < polysize; i++) {
+        for (unsigned int j = i+2; j < polysize; j++) {
+            //std::cout<<"Probando con ";
+            //polygon[i]->p.print(); polygon[j]->p.print();
+            if(utils::diagonalInsidePolygon(polygon, i, j)) {
+                p1 = i;
+                p2 = j;
+                std::cout<<"Se encontro la diagonal="<<i<<' '<<j<<'\n'; polygon[p1]->print(); polygon[p2]->print();
+                return true;
+            }
         }
-        v_it++;
     }
-    glEnd();
+    return false;
 }
 
 //borra el vertice mas cercano a P
@@ -454,10 +454,6 @@ std::vector<Vertex *> Graph::selectVertexToDelete(unsigned int max_degree) {
         }
     }
    
-    std::cout<<"Impresion de los puntos seleccionados: ";
-    for (unsigned int j = 0; j < vertex_to_delete.size(); j++) 
-        vertex_to_delete[j]->p.print(false);
-    std::cout<<"\nFin de impresion\n";
     //Antes de salir, desmarcamos todos
     unmarkAllVertex();
 

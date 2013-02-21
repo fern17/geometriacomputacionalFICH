@@ -7,7 +7,7 @@
 #include <string>
 #include <iostream>
 #include <fstream>
-
+#include "Triangle.h"
 namespace utils{
 
 const static float RADIAN = 180/M_PI;
@@ -244,7 +244,88 @@ bool static diagonalInsidePolygon(std::vector<Vertex *> polygon, unsigned int in
     }
 }
 
+/*
+function SameSide(p1,p2, a,b)
+    cp1 = CrossProduct(b-a, p1-a)
+    cp2 = CrossProduct(b-a, p2-a)
+    if DotProduct(cp1, cp2) >= 0 then return true
+    else return false
+function PointInTriangle(p, a,b,c)
+    if SameSide(p,a, b,c) and SameSide(p,b, a,c)
+        and SameSide(p,c, a,b) then return true
+    else return false
+*/
+
+bool static sameSide(Point p1, Point p2, Point q1, Point q2) {
+    Point q21 = q2 - q1;
+    Point p1q1 = p1 - q1;
+    Point p2q1 = p2 - q1;
+    float cp1 = crossProduct(q21, p1q1);
+    float cp2 = crossProduct(q21, p2q1);
+    float dot = cp1*cp2;
+    if (dot >= 0) return true;
+    else return false;
+}
+
+bool static pointInTriangle(Point P, Point Ta, Point Tb, Point Tc) {
+    if (sameSide(P, Ta, Tb, Tc) and sameSide(P, Tb, Ta, Tc) and sameSide(P, Tc, Ta, Tb)) 
+        return true;
+    else
+        return false;
+}
+
+//Retorna true si los dos triangulos se intersectan
+bool static triangleOverlap(Triangle *T1, Triangle *T2) {
+    //Se debe probar los 3 lados de T1 contra los 3 lados de T2
+    //Si no se intersectan, probar 3 puntos de de T1 dentro de T2 y viceversa
+    //
+    //
+    Point T1a = T1->p1->p;
+    Point T1b = T1->p2->p;
+    Point T1c = T1->p3->p;
+    Point T2a = T2->p1->p;
+    Point T2b = T2->p2->p;
+    Point T2c = T2->p3->p;
+    Point phantom;
+
+    //Primero probamos los 3 lados de T1 contra los 3 lados de T2
+    bool intersection;
+    intersection = getLineIntersection(T1a, T1b, T2a, T2b, phantom);
+    if(intersection) return true;
+    else intersection = getLineIntersection(T1a, T1b, T2a, T2c, phantom);
+    if(intersection) return true;
+    else intersection = getLineIntersection(T1a, T1b, T2b, T2c, phantom);
+    if(intersection) return true;
+    else intersection = getLineIntersection(T1b, T1c, T2a, T2b, phantom);
+    if(intersection) return true;
+    else intersection = getLineIntersection(T1b, T1c, T2a, T2c, phantom);
+    if(intersection) return true;
+    else intersection = getLineIntersection(T1b, T1c, T2b, T2c, phantom);
+    if(intersection) return true;
+    else intersection = getLineIntersection(T1c, T1a, T2a, T2b, phantom);
+    if(intersection) return true;
+    else intersection = getLineIntersection(T1c, T1a, T2a, T2c, phantom);
+    if(intersection) return true;
+    else intersection = getLineIntersection(T1c, T1a, T2b, T2c, phantom);
+    if(intersection) return true;
+    
+    bool inside;
+    //Ahora probamos cada punto de T1 dentro de T2
+    inside = pointInTriangle(T1a, T2a, T2b, T2c);
+    if(inside) return true;
+    else inside = pointInTriangle(T1b, T2a, T2b, T2c);
+    if(inside) return true;
+    else inside = pointInTriangle(T1c, T2a, T2b, T2c);
+    //Ahora probamos cada punto de T2 dentro de T1
+    if(inside) return true;
+    else inside = pointInTriangle(T2a, T1a, T1b, T1c);
+    if(inside) return true;
+    else inside = pointInTriangle(T2b, T1a, T1b, T1c);
+    if(inside) return true;
+    else inside = pointInTriangle(T2c, T1a, T1b, T1c);
+    if(inside) return true;
+    else return false; //no esta dentro del triangulo
+}
 
 };
-
 #endif
