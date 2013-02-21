@@ -64,7 +64,11 @@ void initialize() {
 
 int main(int argc, char **argv) {
     graph = new Graph("points.txt", "neighbors.txt", "triangles.txt");
-    //graph->printStructure();
+    
+    std::vector<Vertex *> vertex_to_delete = graph->selectVertexToDelete(9);
+    for (unsigned int i = 0; i < vertex_to_delete.size(); i++) {
+        graph->deleteVertex(vertex_to_delete[i]);
+    }
     glutInit (&argc, argv);
     initialize();
     glutMainLoop();

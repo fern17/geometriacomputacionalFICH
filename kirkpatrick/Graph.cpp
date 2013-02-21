@@ -5,6 +5,7 @@
 #include <fstream>
 #include <sstream>
 #include <GL/glut.h>
+#include <algorithm>
 
 //Lee desde un archivo las coordenadas de los vertices, las vecindades y los triangulos
 Graph::Graph(std::string f_vertex, std::string f_neighbor, std::string f_triangles) {
@@ -188,8 +189,7 @@ void Graph::printStructure() {
 
 }
 
-//Borra un punto. Llama a retriangulate primero, y luego lo borra cuando nadie lo referencia
-bool Graph::deletePoint(Point &P) {      
+bool Graph::deletePoint(Point &P) {
     //Obtiene la posicion en el vector donde esta el vertex que representa a P
     int position = this->searchPoint(P);
     if (position == -1) 
@@ -201,40 +201,49 @@ bool Graph::deletePoint(Point &P) {
         std::list<Vertex>::iterator it = this->points.begin();
         std::advance(it, position);
         Vertex *point_to_triangulate = &*it;
-        std::cout<<"Comenzando retriangulacion.\n";
-        this->retriangulate(point_to_triangulate);
-        std::cout<<"\nTriangulacion finalizada.\n";
-    
-        //realiza una copia de los vecinos para borrar los triangulos luego
-        std::vector<Vertex *> copy_of_neighbors = it->neighbors;
-         
-        //Borrara todos los triangulos
-        //Para cada vecino
-        for (unsigned int i = 0; i < copy_of_neighbors.size(); i++) {
-            //Para cada triangulo
-            std::list<Triangle>::iterator t_it = this->triangles.begin();
-            while (t_it != this->triangles.end() ) {
-                Triangle tri = *t_it;
-                if(tri.isSegment(&*it, copy_of_neighbors[i])) {//si it y i forman el lado del triangulo j
-                    //debe borrar el triangulo de la lista de todos los vertices
-                    //it->deleteTriangles(copy_of_neighbors[i]);
-                    //copy_of_neighbors[i]->deleteTriangles(&*it);
-                    t_it->deleteAllPoints();
-                    t_it = this->triangles.erase(t_it);
-                }
-                else 
-                    t_it++;
-            }
-        }
         
-        //Borra todos los enlaces de P con sus vecinos
-        unsigned int count_of_deleted_neighbors = it->deleteAllNeighbors();
-        std::cout<<"Se borraron "<<count_of_deleted_neighbors<<" vecinos del punto "; P.print(true);
-        
-        //Borra a P de la estructura
-        this->points.erase(it);
-        return true;
+        return this->deleteVertex(point_to_triangulate);
     }
+}
+
+
+
+//Borra un punto. Llama a retriangulate primero, y luego lo borra cuando nadie lo referencia
+bool Graph::deleteVertex(Vertex *point_to_triangulate) {      
+    std::cout<<"Comenzando retriangulacion.\n";
+    this->retriangulate(point_to_triangulate);
+    std::cout<<"\nTriangulacion finalizada.\n";
+
+    //realiza una copia de los vecinos para borrar los triangulos luego
+    std::vector<Vertex *> copy_of_neighbors = point_to_triangulate->neighbors;
+
+    //Borrara todos los triangulos
+    //Para cada vecino
+    for (unsigned int i = 0; i < copy_of_neighbors.size(); i++) {
+       //Para cada triangulo
+       std::list<Triangle>::iterator t_it = this->triangles.begin();
+       while (t_it != this->triangles.end() ) {
+           Triangle tri = *t_it;
+           if(tri.isSegment(point_to_triangulate, copy_of_neighbors[i])) {//si it y i forman el lado del triangulo j
+               //debe borrar el triangulo de la lista de todos los vertices
+               //it->deleteTriangles(copy_of_neighbors[i]);
+               //copy_of_neighbors[i]->deleteTriangles(&*it);
+               t_it->deleteAllPoints();
+               t_it = this->triangles.erase(t_it);
+           }
+           else 
+               t_it++;
+       }
+    }
+
+    //Borra todos los enlaces de P con sus vecinos
+    unsigned int count_of_deleted_neighbors = point_to_triangulate->deleteAllNeighbors();
+    std::cout<<"Se borraron "<<count_of_deleted_neighbors<<" vecinos del punto "; point_to_triangulate->p.print(true);
+
+    //Borra al punto de la estructura
+    this->points.remove(*point_to_triangulate);
+    //this->points.erase(it);
+    return true;
 }
 
 //Dado un poligono, encuentra una diagonal valida y retorna sus indices por referencia
@@ -403,4 +412,62 @@ void Graph::deleteNearest(Point &P) {
     }
     
     this->deletePoint(point_to_delete);
+}
+
+
+std::vector<Vertex *> Graph::selectVertexToDelete(unsigned int max_degree) {
+    unsigned int marked_vertex = 0;
+    unsigned int pointsize = this->points.size();
+    //Primero marcamos todos los que tienen mayor al grado designado
+    std::list<Vertex>::iterator p = this->points.begin();
+    while (p != this->points.end()) {
+        Vertex *current = &*p;
+        if (current->degree > max_degree) {//si supera el grado, lo marcamos
+            current->mark();  //lo marcamos
+            marked_vertex++;  //aumentamos el contador
+        }
+        p++;
+    }
+    //en vertex_to_delete guardaremos los vertices que vamos a borrar
+    std::vector<Vertex *> vertex_to_delete;
+    p = this->points.begin();
+    //marcamos los primeros 3 puntos que seran los que nunca se deben borrar
+    for (int i = 0; i < 3; i++) {
+        p->mark();
+        p++;
+    }
+    while (marked_vertex != pointsize) {
+        while ((p != this->points.end()) and (p->isMarked()))
+            p++;
+        if (p == this->points.end())
+            break;
+        p->mark();
+        marked_vertex++;
+        vertex_to_delete.push_back(&*p);
+
+        //Obtenemos sus vecinos
+        std::vector<Vertex *> neighbors_to_mark = p->neighbors;
+        //Marcamos todos sus vecinos
+        for (unsigned int j = 0; j < neighbors_to_mark.size(); j++) {
+            neighbors_to_mark[j]->mark();
+            marked_vertex++;
+        }
+    }
+   
+    std::cout<<"Impresion de los puntos seleccionados: ";
+    for (unsigned int j = 0; j < vertex_to_delete.size(); j++) 
+        vertex_to_delete[j]->p.print(false);
+    std::cout<<"\nFin de impresion\n";
+    //Antes de salir, desmarcamos todos
+    unmarkAllVertex();
+
+    return vertex_to_delete;
+}
+
+void Graph::unmarkAllVertex() {
+    std::list<Vertex>::iterator p = this->points.begin();
+    while (p != this->points.end()) {
+        p->unmark();
+        p++;
+    }
 }

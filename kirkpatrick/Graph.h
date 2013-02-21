@@ -24,8 +24,13 @@ class Graph {
     int searchPoint(const Point &P); //Dado un punto, busca el vertice que lo referencia. 
                 //Retorna el indice en el vector de vertices o -1 si nadie lo referencia (no se encontro)
     bool deletePoint(Point &P);     //Borra un punto. Llama a retriangulate primero, y luego lo borra cuando nadie lo referencia
-    
+    bool deleteVertex(Vertex *point_to_triangulate);    
     void deleteNearest(Point &P);
+
+    //Kirkpatrick
+    void unmarkAllVertex();
+    std::vector<Vertex *> selectVertexToDelete(unsigned int max_degree);
+    
     //opengl
     void drawPoints();
     void drawLines();

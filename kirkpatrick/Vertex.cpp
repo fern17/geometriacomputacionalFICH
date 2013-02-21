@@ -12,6 +12,7 @@ Vertex::Vertex(float _x, float _y) {
     this->neighbors.clear();
     this->triangles.clear();
     this->degree = 0;
+    this->marked = false;
 }
 
 //imprime el punto, sus vecinos y triangulos
@@ -220,3 +221,16 @@ int Vertex::searchNeighbor(Vertex *V) {
     }
     return -1;
 }
+
+bool Vertex::isMarked() {
+    return this->marked;
+}
+
+void Vertex::mark() {
+    this->marked = true;
+}
+
+void Vertex::unmark() {
+    this->marked = false;
+}
+

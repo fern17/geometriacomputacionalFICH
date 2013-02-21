@@ -10,6 +10,7 @@ class Vertex{
     Point p;                                    //Punto que representa este vertice
     std::vector<Vertex *> neighbors;            //Punteros a todos sus vecinos
     std::vector<Triangle *> triangles;          //Punteros a los triangulos vecinos
+    bool marked;
     unsigned int degree;
     Vertex(float _x, float _y);
     void print();                               //imprime el punto, sus vecinos y triangulos
@@ -29,6 +30,9 @@ class Vertex{
     void deleteTriangles(Vertex *related_to); //Le digo a mis vecinos que borre todos los triangulos que nos tienen como lado
     std::vector<Triangle *> findTriangles(Vertex *related_to); //Dado un vertice, devuelve los indices en el array de triangulos donde se halla 
                                                                 //un triangulo que tiene a this y related_to como lado
+    bool isMarked();
+    void mark();
+    void unmark();
 
 }; 
 
