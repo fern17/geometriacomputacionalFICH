@@ -29,7 +29,8 @@ class Vertex{
     bool deleteTriangle(Triangle *tri);         //Dado un triangulo, lo borra de la lista de triangulos. Retorna true si lo pudo borrar
     void deleteTriangles(Vertex *related_to); //Le digo a mis vecinos que borre todos los triangulos que nos tienen como lado
     std::vector<Triangle *> findTriangles(Vertex *related_to); //Dado un vertice, devuelve los indices en el array de triangulos donde se halla 
-                                                                //un triangulo que tiene a this y related_to como lado
+                                                      //un triangulo que tiene a this y related_to como lado
+    //Kirkpatrick
     bool isMarked();
     void mark();
     void unmark();

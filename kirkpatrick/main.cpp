@@ -2,11 +2,11 @@
 #include "Graph.h"
 #include "utils.cpp"
 #include <iostream>
-
+#include "Kirkpatrick.h"
 static const unsigned int MAX_DEGREE = 8;
 
 Graph *graph;
-
+Kirkpatrick *kirkpatrickStructure;
 
 //Cosas de OPENGL
 //Callback de Resize
@@ -67,9 +67,11 @@ void initialize() {
 
 int main(int argc, char **argv) {
     graph = new Graph("points.txt", "neighbors.txt", "triangles.txt");
-  
-    
-    graph->kirkpatrickDeletion(MAX_DEGREE);
+    kirkpatrickStructure = new Kirkpatrick();
+    kirkpatrickStructure->build(graph, MAX_DEGREE);
+    std::cout<<"\n\n\nEstructura de Kirkpatrick:\n";
+    kirkpatrickStructure->print();
+    //graph->kirkpatrickDeletion(MAX_DEGREE, 3);
     
     graph->printStructure();
     glutInit (&argc, argv);

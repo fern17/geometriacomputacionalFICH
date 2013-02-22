@@ -1,5 +1,8 @@
 #include "Graph.h"
-#include "TriangleStatic.h"
+//#include "Point.h"
+//#include "Vertex.h"
+//#include "Triangle.h"
+//#include "TriangleStatic.h"
 #include "utils.cpp"
 #include <string>
 #include <iostream>
@@ -195,9 +198,12 @@ unsigned int Graph::size() {
 
 //Retorna el triangulo envolvente estatico, formado por los primeros 3 vertices
 TriangleStatic Graph::getBoundingTriangle() {
-    Point p1 = this->points[0].p;
-    Point p2 = this->points[1].p;
-    Point p3 = this->points[2].p;
+    std::list<Vertex>::iterator it = this->points.begin();
+    Point p1 = it->p;
+    it++;
+    Point p2 = it->p;
+    it++;
+    Point p3 = it->p;
     TriangleStatic ret_val(p1,p2,p3);
     return ret_val;
 }
@@ -427,19 +433,18 @@ void Graph::deleteNearest(Point &P) {
     this->deletePoint(point_to_delete);
 }
 
-void Graph::kirkpatrickDeletion(unsigned int max_degree) {
-    for (unsigned int j = 0; j < 3; j++) {
-        std::vector<Vertex *> vertex_to_delete = this->selectVertexToDelete(max_degree);
-        
-        std::cout<<"\n\n\n\nImpresion de los puntos seleccionados: ";
-        for (unsigned int j = 0; j < vertex_to_delete.size(); j++) 
-            vertex_to_delete[j]->p.print(false);
-        std::cout<<"\nFin de impresion\n";
-        
-        for (unsigned int i = 0; i < vertex_to_delete.size(); i++) {
-            this->deleteVertex(vertex_to_delete[i]);
-        }
+unsigned int Graph::kirkpatrickDeletion(unsigned int max_degree) {
+    std::vector<Vertex *> vertex_to_delete = this->selectVertexToDelete(max_degree);
+    
+    std::cout<<"\n\n\n\nImpresion de los puntos seleccionados: ";
+    for (unsigned int j = 0; j < vertex_to_delete.size(); j++) 
+        vertex_to_delete[j]->p.print(false);
+    std::cout<<"\nFin de impresion\n";
+    
+    for (unsigned int i = 0; i < vertex_to_delete.size(); i++) {
+        this->deleteVertex(vertex_to_delete[i]);
     }
+    return vertex_to_delete.size();
 }
 
 std::vector<Vertex *> Graph::selectVertexToDelete(unsigned int max_degree) {

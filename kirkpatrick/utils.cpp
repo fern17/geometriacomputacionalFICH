@@ -275,17 +275,17 @@ bool static pointInTriangle(Point P, Point Ta, Point Tb, Point Tc) {
         return false;
 }
 
-bool static triangleOverlap(TriangleStatic *T1, TriangleStatic *T2) {
+bool static triangleOverlap(TriangleStatic T1, TriangleStatic T2) {
     //Se debe probar los 3 lados de T1 contra los 3 lados de T2
     //Si no se intersectan, probar 3 puntos de de T1 dentro de T2 y viceversa
     //
     //
-    Point T1a = T1->p1;
-    Point T1b = T1->p2;
-    Point T1c = T1->p3;
-    Point T2a = T2->p1;
-    Point T2b = T2->p2;
-    Point T2c = T2->p3;
+    Point T1a = T1.p1;
+    Point T1b = T1.p2;
+    Point T1c = T1.p3;
+    Point T2a = T2.p1;
+    Point T2b = T2.p2;
+    Point T2c = T2.p3;
     Point phantom;
 
     //Primero probamos los 3 lados de T1 contra los 3 lados de T2

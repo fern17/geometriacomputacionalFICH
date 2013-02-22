@@ -9,8 +9,8 @@ class Kirkpatrick {
     Node *root;             //puntero a la raiz
 
     Kirkpatrick();          //constructor vacio
-    build(Graph *G);        //Construye el DAG
-
+    void build(Graph *G, unsigned int max_degree); //Construye el DAG
+    void print();
 };
 
 #endif

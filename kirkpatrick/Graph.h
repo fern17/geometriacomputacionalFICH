@@ -4,14 +4,21 @@
 #include "Point.h"
 #include "Vertex.h"
 #include "Triangle.h"
+#include "TriangleStatic.h" 
+
 #include <list>
 #include <string>
 
+class Point;
+class Vertex;
+class Triangle;
+class TriangleStatic;
+
 class Graph {
+public:
     std::list<Vertex> points;     //Conjunto de puntos del grafo
     std::list<Triangle> triangles;//Conjunto de triangulos del grafo
     
-    public:
     Graph(std::string f_vertex, std::string f_neighbor, std::string f_triangles);//Lee desde un archivo las coordenadas de los vertices, las vecindades y los triangulos
     void printStructure(); //imprime la estructura completa
     unsigned int size();    
@@ -27,10 +34,11 @@ class Graph {
     bool deleteVertex(Vertex *point_to_triangulate);    
     void deleteNearest(Point &P);
 
-    //Kirkpatrick
-    void kirkpatrickDeletion(unsigned int max_degree);
+    //kirkpatrick
+    unsigned int kirkpatrickDeletion(unsigned int max_degree);
     void unmarkAllVertex();
     std::vector<Vertex *> selectVertexToDelete(unsigned int max_degree);
+    TriangleStatic getBoundingTriangle();
     
     //opengl
     void drawPoints();
