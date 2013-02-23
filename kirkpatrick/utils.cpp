@@ -15,6 +15,7 @@ const static float RADIAN = 180/M_PI;
 
 // Returns 1 if the lines intersect, otherwise 0. In addition, if the lines 
 // intersect the intersection point may be stored in intersection
+// Si las lineas son coincidentes, retorna falso
 bool static getLineIntersection(Point p0, Point p1, Point p2, Point p3, Point &intersection, bool lessequal = true) {
     Point s1;
     Point s2;
@@ -22,8 +23,11 @@ bool static getLineIntersection(Point p0, Point p1, Point p2, Point p3, Point &i
     s2.x = p3.x - p2.x;     s2.y = p3.y - p2.y;
 
     float s, t;
-    s = (-s1.y * (p0.x - p2.x) + s1.x * (p0.y - p2.y)) / (-s2.x * s1.y + s1.x * s2.y);
-    t = ( s2.x * (p0.y - p2.y) - s2.y * (p0.x - p2.x)) / (-s2.x * s1.y + s1.x * s2.y);
+    float denominator = (-s2.x * s1.y + s1.x * s2.y);
+    if (fabs(denominator) < 0.000001) //denominador igual a cero
+        return false;
+    s = (-s1.y * (p0.x - p2.x) + s1.x * (p0.y - p2.y)) / denominator;
+    t = ( s2.x * (p0.y - p2.y) - s2.y * (p0.x - p2.x)) / denominator;
 
     //Lo siguiente depende del comparador que se use, menor/mayor o menor/mayor igual
     bool colission = false;
@@ -264,7 +268,7 @@ bool static sameSide(Point p1, Point p2, Point q1, Point q2) {
     float cp1 = crossProduct(q21, p1q1);
     float cp2 = crossProduct(q21, p2q1);
     float dot = cp1*cp2;
-    if (dot >= 0) return true;
+    if (dot > 0) return true;
     else return false;
 }
 
@@ -286,27 +290,46 @@ bool static triangleOverlap(TriangleStatic T1, TriangleStatic T2) {
     Point T2a = T2.p1;
     Point T2b = T2.p2;
     Point T2c = T2.p3;
+    
+    /*
+    sameSegment(T1a, T1b, T2a, T2b)
+    sameSegment(T1a, T1b, T2a, T2c)
+    sameSegment(T1a, T1b, T2b, T2c)
+
+    sameSegment(T1a, T1c, T2a, T2b)
+    sameSegment(T1a, T1c, T2a, T2c)
+    sameSegment(T1a, T1c, T2b, T2c)
+    
+    sameSegment(T1b, T1c, T2a, T2b)
+    sameSegment(T1b, T1c, T2a, T2c)
+    sameSegment(T1b, T1c, T2b, T2c)
+    */
+
+
     Point phantom;
+
+
+
 
     //Primero probamos los 3 lados de T1 contra los 3 lados de T2
     bool intersection;
-    intersection = getLineIntersection(T1a, T1b, T2a, T2b, phantom);
+    intersection = getLineIntersection(T1a, T1b, T2a, T2b, phantom, false);
     if(intersection) return true;
-    else intersection = getLineIntersection(T1a, T1b, T2a, T2c, phantom);
+    else intersection = getLineIntersection(T1a, T1b, T2a, T2c, phantom, false);
     if(intersection) return true;
-    else intersection = getLineIntersection(T1a, T1b, T2b, T2c, phantom);
+    else intersection = getLineIntersection(T1a, T1b, T2b, T2c, phantom, false);
     if(intersection) return true;
-    else intersection = getLineIntersection(T1b, T1c, T2a, T2b, phantom);
+    else intersection = getLineIntersection(T1b, T1c, T2a, T2b, phantom, false);
     if(intersection) return true;
-    else intersection = getLineIntersection(T1b, T1c, T2a, T2c, phantom);
+    else intersection = getLineIntersection(T1b, T1c, T2a, T2c, phantom, false);
     if(intersection) return true;
-    else intersection = getLineIntersection(T1b, T1c, T2b, T2c, phantom);
+    else intersection = getLineIntersection(T1b, T1c, T2b, T2c, phantom, false);
     if(intersection) return true;
-    else intersection = getLineIntersection(T1c, T1a, T2a, T2b, phantom);
+    else intersection = getLineIntersection(T1c, T1a, T2a, T2b, phantom, false);
     if(intersection) return true;
-    else intersection = getLineIntersection(T1c, T1a, T2a, T2c, phantom);
+    else intersection = getLineIntersection(T1c, T1a, T2a, T2c, phantom, false);
     if(intersection) return true;
-    else intersection = getLineIntersection(T1c, T1a, T2b, T2c, phantom);
+    else intersection = getLineIntersection(T1c, T1a, T2b, T2c, phantom, false);
     if(intersection) return true;
     
     bool inside;

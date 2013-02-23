@@ -7,7 +7,8 @@ static const unsigned int MAX_DEGREE = 8;
 
 Graph *graph;
 Kirkpatrick *kirkpatrickStructure;
-
+TriangleStatic *point_in_triangle;
+Point * point_pressed;
 //Cosas de OPENGL
 //Callback de Resize
 void reshape_cb (int w, int h) {
@@ -27,29 +28,58 @@ void display_cb() {
     //Dibuja los puntos
     glColor3f(1,0,0);     
     glPointSize(5); 
-    graph->drawPoints();
+    kirkpatrickStructure->G->drawPoints();
 
     //Dibuja las lineas
     glLineWidth(1);
     glColor3f(0,0,1);
-    graph->drawLines();
+    kirkpatrickStructure->G->drawLines();
+    glColor3f(0,1,0);
+    if (point_in_triangle) {
+        point_in_triangle->draw();
+    }
+    glColor3f(1,0,0);
+    glPointSize(8); 
+    if (point_pressed) {
+        glBegin(GL_POINTS);
+            glVertex2f(point_pressed->x, point_pressed->y);
+        glEnd();
+    }
     glutSwapBuffers();
 }
 
 void Mouse_cb(int button, int state, int x, int y){
-    if (button==GLUT_MIDDLE_BUTTON and state==GLUT_DOWN){ // boton del medio
+    if (button==GLUT_MIDDLE_BUTTON and state==GLUT_DOWN){ // boton del medio, realiza una iteracion de kirkpatrick
+        kirkpatrickStructure->step();
+        kirkpatrickStructure->print();
+        glutPostRedisplay();
     }
     
-    if (button==GLUT_LEFT_BUTTON and state==GLUT_DOWN){ // boton izquierdo
+    if (button==GLUT_LEFT_BUTTON and state==GLUT_DOWN){ // boton izquierdo, ubica un punto
         y = 480-y;
         Point P(x,y);
-        graph->deleteNearest(P);
-        graph->printStructure();
-        //kirkpatrick.locatePoint(x,y);
+        delete point_pressed;
+        point_pressed = new Point(P);
+        delete point_in_triangle;
+        
+        TriangleStatic ret_val;
+        if (kirkpatrickStructure->searchPoint(P, ret_val)) {
+            point_in_triangle = new TriangleStatic(ret_val);
+            std::cout<<"Punto dentro de "; point_in_triangle->print(true);
+        }
+        else {
+            std::cout<<"Punto fuera de la triangulacion\n";
+        }
+        //point_in_triangle = new TriangleStatic(kirkpatrickStructure->searchPoint(P));
+        //std::cout<<"Punto dentro de "; point_in_triangle->print(true);
         glutPostRedisplay();
     } // fin botón izquierdo
     
-    if (button==GLUT_RIGHT_BUTTON and state==GLUT_DOWN){ // boton derecho
+    if (button==GLUT_RIGHT_BUTTON and state==GLUT_DOWN){ // boton derecho, borra un punto
+        Point P(x,y);
+        kirkpatrickStructure->G->deleteNearest(P);
+        //kirkpatrickStructure->G->printStructure();
+        glutPostRedisplay();
     }
 }
 
@@ -67,13 +97,11 @@ void initialize() {
 
 int main(int argc, char **argv) {
     graph = new Graph("points.txt", "neighbors.txt", "triangles.txt");
-    kirkpatrickStructure = new Kirkpatrick();
-    kirkpatrickStructure->build(graph, MAX_DEGREE);
+    kirkpatrickStructure = new Kirkpatrick(graph, MAX_DEGREE);
+    kirkpatrickStructure->build(0);
     std::cout<<"\n\n\nEstructura de Kirkpatrick:\n";
     kirkpatrickStructure->print();
-    //graph->kirkpatrickDeletion(MAX_DEGREE, 3);
     
-    graph->printStructure();
     glutInit (&argc, argv);
     initialize();
     glutMainLoop();

@@ -1,6 +1,7 @@
 #include "Triangle.h"
 #include "TriangleStatic.h"
 #include "Vertex.h"
+#include <GL/glut.h>
 #include <iostream>
 TriangleStatic TriangleStatic::buildFromTriangle(Triangle T) {
     Point p1 = T.p1->p;
@@ -11,10 +12,18 @@ TriangleStatic TriangleStatic::buildFromTriangle(Triangle T) {
 }
 
 void TriangleStatic::print(bool enter) {
-    std::cout<<"p1 = "; this->p1.print(false);
+    std::cout<<" p1 = "; this->p1.print(false);
     std::cout<<" p2 = "; this->p2.print(false);
     std::cout<<" p3 = "; this->p3.print(false);
     if (enter) 
         std::cout<<"\n";
 }
 
+void TriangleStatic::draw() {
+
+    glBegin(GL_TRIANGLES);
+        glVertex2f(this->p1.x, this->p1.y);
+        glVertex2f(this->p2.x, this->p2.y);
+        glVertex2f(this->p3.x, this->p3.y);
+    glEnd();
+}
