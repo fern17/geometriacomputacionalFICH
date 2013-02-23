@@ -11,7 +11,14 @@ TriangleStatic TriangleStatic::buildFromTriangle(Triangle T) {
     return ret_val;
 }
 
+bool TriangleStatic::operator ==(const TriangleStatic &compare_to) {
+    return  (this->p1 == compare_to.p1) and
+            (this->p2 == compare_to.p2) and
+            (this->p3 == compare_to.p3);
+}
+
 void TriangleStatic::print(bool enter) {
+    std::cout<<this->triangletag<<'\t';
     std::cout<<" p1 = "; this->p1.print(false);
     std::cout<<" p2 = "; this->p2.print(false);
     std::cout<<" p3 = "; this->p3.print(false);

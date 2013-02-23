@@ -92,11 +92,12 @@ bool Kirkpatrick::step() {
 
 void Kirkpatrick::print() {
     std::cout<<"Impresion de la estructura de Kirkpatrick\n";
+    //this->root->triangle->print(true);
     this->root->print(0);
     std::cout<<"Fin de impresion\n";
 }
 
 
 bool Kirkpatrick::searchPoint(Point P, TriangleStatic &ret_val) {
-    return this->root->search(P, ret_val);
+    return this->root->search(P, ret_val, 0);
 }

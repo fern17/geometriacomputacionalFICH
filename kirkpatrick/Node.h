@@ -10,13 +10,13 @@ class Node {
     TriangleStatic *triangle;          //Triangulo que representa este nodo
     
     Node(TriangleStatic T);                            //Constructor sin padre
-    //Node(TriangleStatic T, Node *new_father);          //Constructor por defecto
+    bool operator ==(const Node &compare_to);
     bool isChild(Node *c); //true si C es hijo de this
     void addChild(Node *new_child);  //Agrega un hijo
     //void setFather(Node *new_father); //Cambia el padre 
     void deleteChild(Node *child_to_delete); //borra un hija
     void print(unsigned int level);
-    bool search(Point P, TriangleStatic &ret_val);
+    bool search(Point P, TriangleStatic &ret_val, unsigned int pasos);
 };
 
 #endif
