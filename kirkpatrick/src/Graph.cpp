@@ -50,7 +50,7 @@ Graph::Graph(std::string f_vertex, std::string f_neighbor, std::string f_triangl
     }
     
     
-    int value;
+    unsigned int value;
     std::string s, line;
     std::stringstream ss, iss;
     
@@ -284,8 +284,6 @@ bool Graph::deleteVertex(Vertex *point_to_triangulate) {
            Triangle tri = *t_it;
            if(tri.isSegment(point_to_triangulate, copy_of_neighbors[i])) {//si it y i forman el lado del triangulo j
                //debe borrar el triangulo de la lista de todos los vertices
-               //it->deleteTriangles(copy_of_neighbors[i]);
-               //copy_of_neighbors[i]->deleteTriangles(&*it);
                t_it->deleteAllPoints();
                t_it = this->triangles.erase(t_it);
            }

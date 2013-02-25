@@ -15,14 +15,9 @@ namespace utils{
 
 const static float RADIAN = 180/M_PI;
 
-std::string static ctos(char * i) {
+std::string static ctos(char *c) {
     std::stringstream ss;
-    ss<<i;
-    return ss.str();
-}
-std::string static itos(unsigned int i) {
-    std::stringstream ss;
-    ss<<i;
+    ss<<c;
     return ss.str();
 }
 
@@ -62,44 +57,28 @@ bool static getLineIntersection(Point p0, Point p1, Point p2, Point p3, Point &i
     return false; // No collision
 }
 
-void static loadPoints(std::string filename, std::vector<Point> &polygon) {
-    std::ifstream file; 
-    file.open(filename.c_str());
-    if(!file.is_open()) { //muestra error si no se pudo abrir el archivo
-        std::cout<<"No se pudo abrir el archivo "<<filename<<"\n";
-        return;
-    }
-    
-    std::cout<<"Leyendo puntos:\n";
-    Point p;
-    while (file>>p.x and file>>p.y) {
-        p.print(true);
-        polygon.push_back(p);
-    }
-    std::cout<<polygon.size()<<" puntos leidos\n";
-    file.close();
-}
-
+/*
 float static dotProduct(const Point &v1, const Point &v2) {
     return v1.x*v2.x + v1.y*v2.y;
-}
+}*/
 
 float static crossProduct(const Point &v1, const Point &v2) {
     return v1.x*v2.y - v1.y*v2.x;
 }
-
+/*
 float static module(const Point &v) {
     return sqrt(pow(v.x, 2) + pow(v.y,2));
 }
 
 float static moduleSquared(const Point &v) {
     return (pow(v.x, 2) + pow(v.y,2));
-}
-
+}*/
+ 
 float static dist(const Point &p1, const Point &p2) {
     return sqrt(pow(p1.x-p2.x,2) + pow(p1.y-p2.y,2));
 }
 
+ 
 float static angleVectors(Point &v1, Point &v2) {
     Point res = v2-v1;
     float angle = atan2(res.y,res.x) * RADIAN;
@@ -108,14 +87,13 @@ float static angleVectors(Point &v1, Point &v2) {
     return angle;
 }
 
+/*
 float static angleBetweenVectors(const Point &v1, const Point &v2) {
     return (atan2(v2.y,v2.x) - atan2(v1.y,v1.x))*RADIAN;
-    /*
-    float dotP = dotProduct(v1, v2);
-    float crossP = crossProduct(v1, v2);
-    return atan(dotP/crossP);
-    */
 }
+*/
+
+/*
 //calcula el angulo angle(p1,p2,p3), donde p2 es el punto en comun
 float static angleBetweenSegments(Point p1, Point p2, Point p3) {
     //Primero calculamos los vectores v1 y v2
@@ -127,7 +105,7 @@ float static angleBetweenSegments(Point p1, Point p2, Point p3) {
     v2.print(false);
     //Ahora calculamos el angulo teniendo los dos vectores
     return angleBetweenVectors(v1, v2);
-}
+}*/
 
 /*  
 //Retorna true si p1-p2 es el mismo segmento que p3-p4

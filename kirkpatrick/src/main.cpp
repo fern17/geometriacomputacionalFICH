@@ -2,6 +2,7 @@
 #include "Graph.h"
 #include "utils.cpp"
 #include <iostream>
+#include <ctime>
 #include <string>
 #include "Kirkpatrick.h"
 #include "TriangleStatic.h"
@@ -98,7 +99,12 @@ void Mouse_cb(int button, int state, int x, int y){
         delete point_in_triangle;
         
         TriangleStatic ret_val;
+        clock_t t_ini, t_end;
+        double secs;
+        t_ini = clock();
+
         if (kirkpatrickStructure->searchPoint(P, ret_val)) {
+            //t_end = clock();   secs = (double (t_end - t_ini) );  std::cout<<"Tiempo "<<secs<<'\n';
             point_in_triangle = new TriangleStatic(ret_val);
             std::cout<<"Punto dentro de "; point_in_triangle->print(true);
         }
