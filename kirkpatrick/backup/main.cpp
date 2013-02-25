@@ -126,21 +126,9 @@ void initialize() {
 
 
 int main(int argc, char **argv) {
-    unsigned int test_case = 0;
-    std::cout<<argc;std::getchar();
-    if (argc > 0) {
-        if (argv[0] < 3)
-            test_case = argv[0];
-        std::cout<<"Leyendo caso "<<test_case;
-    }
-    std::string str1 = "points" + test_case + ".txt";
-    std::string str2 = "neighbors" + test_case + ".txt";
-    std::string str3 = "triangles" + test_case + ".txt";
-    graph_to_draw = new Graph(str1, str2, str3);
-    graph = new Graph("points.txt", "neighbors.txt", "triangles.txt");
     //graph_to_draw = new Graph("points3.txt", "neighbors3.txt", "triangles3.txt");
-    //graph_to_draw = new Graph("points.txt", "neighbors.txt", "triangles.txt");
-    //graph = new Graph("points.txt", "neighbors.txt", "triangles.txt");
+    graph_to_draw = new Graph("points.txt", "neighbors.txt", "triangles.txt");
+    graph = new Graph("points.txt", "neighbors.txt", "triangles.txt");
     //graph = new Graph("points3.txt", "neighbors3.txt", "triangles3.txt");
     kirkpatrickStructure = new Kirkpatrick(graph, MAX_DEGREE);
     kirkpatrickStructure->build(0);
