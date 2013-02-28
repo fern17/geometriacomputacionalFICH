@@ -3,6 +3,7 @@
 #include "utils.cpp"
 #include <iostream>
 #include <ctime>
+#include <cstdlib>
 #include <string>
 #include "Kirkpatrick.h"
 #include "TriangleStatic.h"
@@ -170,18 +171,26 @@ void initialize() {
 
 int main(int argc, char **argv) {
     std::string test_case;
+    unsigned int maxdegree;
     if (argc > 1) {
         test_case = utils::ctos(argv[1]);
         std::cout<<"Leyendo caso "<<test_case;
     }
     else 
         test_case = "1";
+    if (argc > 2) {
+        maxdegree = atoi(argv[2]);
+        std::cout<<"\nLeyendo grado "<<maxdegree;
+    }
+    else 
+        maxdegree = MAX_DEGREE;
+    std::getchar();
     std::string str1 = "points" + test_case + ".txt";
     std::string str2 = "neighbors" + test_case + ".txt";
     std::string str3 = "triangles" + test_case + ".txt";
     graph_to_draw = new Graph(str1, str2, str3);
     graph = new Graph(str1, str2, str3);
-    kirkpatrickStructure = new Kirkpatrick(graph, MAX_DEGREE);
+    kirkpatrickStructure = new Kirkpatrick(graph, maxdegree);
     kirkpatrickStructure->build(0);
     std::cout<<"\n\n\nEstructura de Kirkpatrick:\n";
     kirkpatrickStructure->print();
