@@ -4,26 +4,30 @@
 #include "utils.cpp"
 #include <iostream>
 #include <algorithm>
-#include <queue>
-Node::Node(TriangleStatic T) {          //Constructor sin padre
+
+//Constructor
+Node::Node(TriangleStatic T) {          
     this->triangle = new TriangleStatic(T);
 }
 
-void Node::addChild(Node *new_child) {  //Agrega un hijo
+//Agrega un hijo si ya no lo tenia
+void Node::addChild(Node *new_child) {  
     if (not isChild(new_child))
         this->child.push_back(new_child);
 }
 
-bool Node::isChild(Node *c) { //true si C es hijo de this
+//true si C es hijo de this (esta en la lista de hijos)
+bool Node::isChild(Node *c) { 
     for (unsigned int i = 0; i < this->child.size(); i++) 
         if (this->child[i] == c) 
             return true;
     return false;
 }
 
+//Borra el hijo, si es que esta en su lista de hijos. Recorre siempre todos los hijos, para evitar que quede repetido
 void Node::deleteChild(Node *child_to_delete) {
     std::vector<Node *>::iterator p = this->child.begin();
-    while (p != this->child.end()) {
+    while (p != this->child.end()) { //busqueda
         if (*p == child_to_delete) {
             p = this->child.erase(p);
         }
@@ -32,10 +36,12 @@ void Node::deleteChild(Node *child_to_delete) {
     }
 }
 
+//Compara los triangulos del nodo
 bool Node::operator ==(const Node &compare_to) {
     return this->triangle == compare_to.triangle;
 }
 
+//Muestra el triangulo a la salida estandar
 void Node::print(unsigned int level) {
     //imprimimos tabulaciones para identar
     for (unsigned int i = 0; i < level; i++)  
@@ -50,20 +56,23 @@ void Node::print(unsigned int level) {
     }
 }
 
+//Pregunta si P esta dentro mio. Si lo esta, llama a los hijos.
+//Si soy nodo hoja, retorno mi triangulo por parametro
+//El tercer parametro es para contar las comparaciones
 bool Node::search(Point P, TriangleStatic &ret_val, unsigned int pasos) {
     if (utils::pointInTriangle(P, this->triangle->p1, this->triangle->p2, this->triangle->p3)){
-        //std::cout<<"Dentro de "; this->triangle->print(true);
+        //Este nodo es hoja
         if (this->child.empty()) {
-            ret_val = *this->triangle;
-            std::cout<<"Se hicieron "<<pasos<<" pasos para encontrar el punto\n";
-            return true;
+            ret_val = *this->triangle; //el valor de retorno es mi triangulo
+            std::cout<<"Se hicieron "<<pasos<<" pasos para encontrar el punto\n"; //imprime la cantidad de comparaciones
+            return true;                //retorna true para saber que se encontro
         }
-        else {
+        else {//Le pregunta por inclusion a todos sus hijos
             for (unsigned int i = 0; i < this->child.size(); i++) {
                 if (this->child[i]->search(P, ret_val, pasos+1+i))
                     return true;
             }
         }
     }
-    return false;
+    return false; //no esta dentro de este triangulo
 }

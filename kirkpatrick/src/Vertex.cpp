@@ -6,6 +6,7 @@
 #include <iostream>
 #include <algorithm>
 //Constructor
+//Setea los puntos, vacia los vectores y pone degree y marked en 0
 Vertex::Vertex(float _x, float _y) {
     this->p.x = _x;
     this->p.y = _y;
@@ -55,7 +56,7 @@ bool Vertex::addTriangle(Triangle * _newtriangle) {
         return false;
 }
 
-//Retorna true si este vertice ya lo tiene como vecino al triangulo de argumento
+//Retorna true si este vertice ya lo tiene, al triangulo de argumento, en su lista de triangulos
 bool Vertex::isTriangle(Triangle * _newtriangle) {
     for (unsigned int i = 0; i < this->triangles.size(); i++) {
         if (this->triangles[i] == _newtriangle) { //compara direcciones
@@ -65,15 +66,16 @@ bool Vertex::isTriangle(Triangle * _newtriangle) {
     return false;
 }
 
+//-------------------SIN USO----------------------------------
 //Agrega un vecino a la lista de vecinos
 void Vertex::addNeighbor(Vertex *new_neighbor) {
     if (not isNeighbor(new_neighbor)) { //Si ya no esta en la lista de vecinos
         //std::cout<<"Llamando a addNeighbor desde ";this->p.print(); std::cout<<" con "; new_neighbor->p.print(true);
         this->neighbors.push_back(new_neighbor); //Ahora son vecinos
-        this->degree++;
+        this->degree++;                          //Aumenta grado
         new_neighbor->addNeighbor(this);         //Que el otro me agregue como vecino tambien
     }
-}
+}//-----------------------------------------------------------
 
 //Agrega un vecino a la lista de vecinos pero lo inserta en la posición angular necesaria para mantener la relación CCW
 void Vertex::addNeighborCCW(Vertex *new_neighbor) {
@@ -103,12 +105,12 @@ void Vertex::addNeighborCCW(Vertex *new_neighbor) {
         //En current_pos quedo guardada la posicion donde insertarlo
 
         this->neighbors.insert(this->neighbors.begin()+current_pos, new_neighbor); //Ahora son vecinos en la posicion correcta
-        this->degree++;
+        this->degree++;                             //actualiza el grado
         new_neighbor->addNeighborCCW(this);         //Que el otro me agregue como vecino tambien
     }
 }
 
-//Dado un vertice, se fija si es vecino
+//Dado un vertice, se fija si es mi vecino
 bool Vertex::isNeighbor(Vertex *neighbor) {
     int position = this->searchNeighbor(neighbor);
     if (position == -1 or position >= this->neighbors.size()) 
@@ -118,23 +120,25 @@ bool Vertex::isNeighbor(Vertex *neighbor) {
 }
 
 //Borra un vecino de la lista de vecinos. 
-//Ademas, debe llamar a ese vecino para que lo borre al vertice actual de su lista
+//NO -> Ademas, debe llamar a ese vecino para que lo borre al vertice actual de su lista
 bool Vertex::deleteNeighbor(Vertex * neighbor) {
     if (this->isNeighbor(neighbor)) { //Si es vecino
         int position = this->searchNeighbor(neighbor);
         if (position == -1 or position >= this->neighbors.size()) {
             return false; //Posicion no encontrada o fuera de rango
         } else {
-            this->neighbors.erase(this->neighbors.begin()+position);
-            this->degree--;
-            //neighbor->deleteNeighbor(this);
+            this->neighbors.erase(this->neighbors.begin()+position); //lo borra
+            this->degree--;     //Actualiza el grado
+            
+            //neighbor->deleteNeighbor(this); COMENTADO porque se hace desde la funcion que llama a esta
             return true;
         }
     }
     else
         return false; //No son vecinos
 }
-//Dado un vertice, devuelve los punteros que tiene que borrar
+
+//Dado un vertice related_to, devuelve los triangulos cuyo segmento : this-related_to forman una arista
 std::vector<Triangle *> Vertex::findTriangles(Vertex *related_to) {
     std::vector<Triangle *> ret_val; 
     for (unsigned int i = 0; i < this->triangles.size(); i++) {
@@ -143,7 +147,6 @@ std::vector<Triangle *> Vertex::findTriangles(Vertex *related_to) {
     }
     return ret_val;
 }
-
 
 //Dado un triangulo, recorre la lista de triangulos y lo borra
 bool Vertex::deleteTriangle(Triangle *tri) {
@@ -157,14 +160,6 @@ bool Vertex::deleteTriangle(Triangle *tri) {
             it++;
     }
 
-    /*
-    for (unsigned int i = 0; i < this->triangles.size(); i++) {
-        if (this->triangles[i] == tri) {
-            this->triangles.erase(this->triangles.begin()+i);
-            return true;
-        }
-    }
-    */
     return false;
 }
 
@@ -191,12 +186,13 @@ unsigned int Vertex::deleteAllNeighbors() {
     while(this->neighbors.size()) {
         //std::cout<<"Se borro el enlace con el punto = "; this->neighbors.front()->p.print(); std::cout<<'\n';
         
+        //NO, se hace afuera
         //this->neighbors.front()->deleteTriangles(this);
         //this->deleteTriangles(this->neighbors.front());
-        
         //bool deleted = this->neighbors.front()->deleteNeighbor(this);
-        this->neighbors.front()->deleteNeighbor(this);
-        bool deleted = this->deleteNeighbor(this->neighbors.front());
+        
+        this->neighbors.front()->deleteNeighbor(this);                      //Le dice al otro que me borre a mi
+        bool deleted = this->deleteNeighbor(this->neighbors.front());       //Yo lo borro al otro
         if (deleted)
             count++;
     }
@@ -204,8 +200,8 @@ unsigned int Vertex::deleteAllNeighbors() {
     if (new_degree > 0) {
         std::cout<<"Advertencia. No se borraron todos los vecinos\n";
     }
-    this->degree = new_degree;
-    return count;
+    this->degree = new_degree;          //actualiza el grado
+    return count;                       //devuelve la cantidad de borrados
 }
 
 //Igualdad en terminos del punto que representan
@@ -214,6 +210,7 @@ bool Vertex::operator == (const Vertex &V) {
 }
 
 //Dado un vecino, devuelve la posicion donde esta en el vector de vecinos
+//-1 si no lo encuentra
 int Vertex::searchNeighbor(Vertex *V) {
     for (unsigned int i = 0; i < this->neighbors.size(); i++) {
         if (this->neighbors[i] == V) 
@@ -222,6 +219,7 @@ int Vertex::searchNeighbor(Vertex *V) {
     return -1;
 }
 
+//Funciones que operan sobre this->marked
 bool Vertex::isMarked() {
     return this->marked;
 }

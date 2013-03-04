@@ -1,9 +1,6 @@
 #include "Graph.h"
-//#include "Point.h"
-//#include "Vertex.h"
-//#include "Triangle.h"
-//#include "TriangleStatic.h"
 #include "utils.cpp"
+
 #include <string>
 #include <iostream>
 #include <fstream>
@@ -167,6 +164,7 @@ Graph::Graph(std::string f_vertex, std::string f_neighbor, std::string f_triangl
     file_t.close();
 }    
 
+//Imprime el grafo a la salida estandar
 void Graph::printStructure() {
     std::cout<<"Estructura del grafo:\n";
     std::cout<<"Puntos:\n";
@@ -181,7 +179,6 @@ void Graph::printStructure() {
     std::cout<<"---------------------------------------------\n";
 
     std::cout<<"Triangulos:\n";
-    
     //Impresion de triangulos
     std::list<Triangle>::iterator q = this->triangles.begin();
     unsigned int pos2 = 0;
@@ -192,6 +189,7 @@ void Graph::printStructure() {
     }
 }
 
+//Retorna la cantidad de puntos del grafo. Ojo que es lineal!
 unsigned int Graph::size() {
     return this->points.size();
 }
@@ -208,32 +206,6 @@ TriangleStatic Graph::getBoundingTriangle() {
     return ret_val;
 }
 
-void Graph::drawPoints() {
-    glBegin(GL_POINTS);
-    std::list<Vertex>::iterator it = this->points.begin();
-    while(it != this->points.end()) {
-        glVertex2f(it->p.x, it->p.y);
-        it++;
-    }
-    glEnd();
-}
-
-void Graph::drawLines() {
-    glBegin(GL_LINES);
-    std::list<Vertex>::iterator v_it = this->points.begin();
-    while (v_it != this->points.end()) {
-        //v_it->print();
-        unsigned int cantidad_vecinos = v_it->neighbors.size();
-        for (unsigned int j = 0; j < cantidad_vecinos; j++) {
-            Vertex *u = v_it->neighbors[j];
-            glVertex2f(v_it->p.x, v_it->p.y);
-            glVertex2f(u->p.x, u->p.y);
-        }
-        v_it++;
-    }
-    glEnd();
-}
-
 //Dado un punto, busca el vertice que lo referencia. 
 //Retorna el indice en el vector de vertices o -1 si nadie lo referencia (no se encontro)
 int Graph::searchPoint(const Point &P) {
@@ -248,6 +220,7 @@ int Graph::searchPoint(const Point &P) {
     return -1;
 }
 
+//Dado un punto P, lo borra de la estructura si y solo si lo encuentra
 bool Graph::deletePoint(Point &P) {
     //Obtiene la posicion en el vector donde esta el vertex que representa a P
     int position = this->searchPoint(P);
@@ -267,7 +240,8 @@ bool Graph::deletePoint(Point &P) {
 
 //Borra un punto. Llama a retriangulate primero, y luego lo borra cuando nadie lo referencia
 bool Graph::deleteVertex(Vertex *point_to_triangulate) {      
-    std::cout<<"\t\t\t\t\t\t\t\t\t\t\t\tSe borrara el punto = "; point_to_triangulate->p.print(true);
+    std::cout<<"Se borrara el punto = "; point_to_triangulate->p.print(true);
+
     std::cout<<"Comenzando retriangulacion.\n";
     this->retriangulate(point_to_triangulate);
     std::cout<<"\nTriangulacion finalizada.\n";
@@ -275,7 +249,7 @@ bool Graph::deleteVertex(Vertex *point_to_triangulate) {
     //realiza una copia de los vecinos para borrar los triangulos luego
     std::vector<Vertex *> copy_of_neighbors = point_to_triangulate->neighbors;
 
-    //Borrara todos los triangulos
+    //Borrara todos los triangulos que influye point_to_triangulate
     //Para cada vecino
     for (unsigned int i = 0; i < copy_of_neighbors.size(); i++) {
        //Para cada triangulo
@@ -284,7 +258,7 @@ bool Graph::deleteVertex(Vertex *point_to_triangulate) {
            Triangle tri = *t_it;
            if(tri.isSegment(point_to_triangulate, copy_of_neighbors[i])) {//si it y i forman el lado del triangulo j
                //debe borrar el triangulo de la lista de todos los vertices
-               t_it->deleteAllPoints();
+               t_it->deleteAllPoints(); //A todos los vertices le borra el triangulo
                t_it = this->triangles.erase(t_it);
            }
            else 
@@ -298,7 +272,6 @@ bool Graph::deleteVertex(Vertex *point_to_triangulate) {
 
     //Borra al punto de la estructura
     this->points.remove(*point_to_triangulate);
-    //this->points.erase(it);
     return true;
 }
 
@@ -396,8 +369,6 @@ bool Graph::findValidDiagonal(std::vector<Vertex *> polygon, unsigned int &p1, u
     unsigned int polysize = polygon.size();
     for (unsigned int i = 0; i < polysize; i++) {
         for (unsigned int j = i+2; j < polysize; j++) {
-            //std::cout<<"Probando con ";
-            //polygon[i]->p.print(); polygon[j]->p.print();
             if(utils::diagonalInsidePolygon(polygon, i, j)) {
                 p1 = i;
                 p2 = j;
@@ -414,12 +385,12 @@ void Graph::deleteNearest(Point &P) {
     std::cout<<"\n\n\n\n\n"; 
     unsigned int nearest = 0;
     unsigned int pos = 0;
-    float current_distance = utils::dist(P, this->points.front().p);
+    float current_distance = utils::dist(P, this->points.front().p); //distancia de referencia
     std::list<Vertex>::iterator it = this->points.begin(); it++; //empieza desde el segundo valor
     Point point_to_delete;
     while (it != this->points.end()) {
         float new_dist = utils::dist(P, it->p);
-        if (new_dist < current_distance) {
+        if (new_dist < current_distance) {  //si es menor distancia que la almacenada
             nearest = pos;
             current_distance = new_dist;
             point_to_delete = it->p;
@@ -428,9 +399,10 @@ void Graph::deleteNearest(Point &P) {
         it++;
     }
     
-    this->deletePoint(point_to_delete);
+    this->deletePoint(point_to_delete); //llama a deletePoint ahora si con un punto que esta en el grafo
 }
 
+//Dado un grado maximo, busca puntos a borrar y los borra (un paso de Kirkpatrick)
 unsigned int Graph::kirkpatrickDeletion(unsigned int max_degree) {
     std::vector<Vertex *> vertex_to_delete = this->selectVertexToDelete(max_degree);
     
@@ -438,13 +410,15 @@ unsigned int Graph::kirkpatrickDeletion(unsigned int max_degree) {
     for (unsigned int j = 0; j < vertex_to_delete.size(); j++) 
         vertex_to_delete[j]->p.print(false);
     std::cout<<"\nFin de impresion\n";
-    
+   
+    //Borra todos esos vertices
     for (unsigned int i = 0; i < vertex_to_delete.size(); i++) {
         this->deleteVertex(vertex_to_delete[i]);
     }
     return vertex_to_delete.size();
 }
 
+//Dado un grado, selecciona los vertices del conjunto independiente a borrar
 std::vector<Vertex *> Graph::selectVertexToDelete(unsigned int max_degree) {
     unsigned int marked_vertex = 0;
     unsigned int pointsize = this->points.size();
@@ -490,10 +464,51 @@ std::vector<Vertex *> Graph::selectVertexToDelete(unsigned int max_degree) {
     return vertex_to_delete;
 }
 
+//Llama a unmark para todos los vertices
 void Graph::unmarkAllVertex() {
     std::list<Vertex>::iterator p = this->points.begin();
     while (p != this->points.end()) {
         p->unmark();
         p++;
     }
+}
+
+//Opengl, dibuja los puntos
+void Graph::drawPoints() {
+    glBegin(GL_POINTS);
+    std::list<Vertex>::iterator it = this->points.begin();
+    while(it != this->points.end()) {
+        glVertex2f(it->p.x, it->p.y);
+        it++;
+    }
+    glEnd();
+}
+
+//OpenGL, dibuja las lineas
+void Graph::drawLines() {
+    glBegin(GL_LINES);
+    std::list<Vertex>::iterator v_it = this->points.begin();
+    while (v_it != this->points.end()) {
+        //v_it->print();
+        unsigned int cantidad_vecinos = v_it->neighbors.size();
+        for (unsigned int j = 0; j < cantidad_vecinos; j++) {
+            Vertex *u = v_it->neighbors[j];
+            glVertex2f(v_it->p.x, v_it->p.y);
+            glVertex2f(u->p.x, u->p.y);
+        }
+        v_it++;
+    }
+    glEnd();
+}
+
+void Graph::drawTriangles() {
+    glBegin(GL_TRIANGLES);
+    std::list<Triangle>::iterator t_it = this->triangles.begin();
+    while (t_it != this->triangles.end()) {
+        glVertex2f(t_it->p1->p.x, t_it->p1->p.y);
+        glVertex2f(t_it->p2->p.x, t_it->p2->p.y);
+        glVertex2f(t_it->p3->p.x, t_it->p3->p.y);
+        t_it++;
+    }
+    glEnd();
 }

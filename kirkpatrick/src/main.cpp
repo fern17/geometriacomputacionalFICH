@@ -7,12 +7,14 @@
 #include <string>
 #include "Kirkpatrick.h"
 #include "TriangleStatic.h"
-static const unsigned int MAX_DEGREE = 8;
-char TriangleStatic::TAG = '@';
+static const unsigned int MAX_DEGREE = 7;
+unsigned int TriangleStatic::TAG = 0;       //Inicializacion de los tag
 
-Graph *graph;           //grafo que usa kirkpatrick
-Graph *graph_to_draw;   //grafo para dibujar
-Kirkpatrick *kirkpatrickStructure;
+Graph *graph;           //grafo que usa kirkpatrick y que se dibuja en la ventana secundaria
+Graph *graph_to_draw;   //grafo para dibujar la ventana principal
+Kirkpatrick *kirkpatrickStructure; //Estructura de kirkpatrick
+
+//Usados para dibujar
 TriangleStatic *point_in_triangle;
 Point * point_pressed;
 
@@ -37,10 +39,18 @@ void display_cb() {
     glPointSize(5); 
     graph_to_draw->drawPoints();
 
+    
     //Dibuja las lineas
     glLineWidth(1);
     glColor3f(0,0,1);
     graph_to_draw->drawLines();
+    
+    /*
+    //Dibuja los triangulos
+    glLineWidth(1);
+    glColor3f(0,0,1);
+    graph_to_draw->drawTriangles();
+    */
 
     //Dibuja el triangulo presionado
     if (point_in_triangle) {
@@ -184,7 +194,6 @@ int main(int argc, char **argv) {
     }
     else 
         maxdegree = MAX_DEGREE;
-    std::getchar();
     std::string str1 = "points" + test_case + ".txt";
     std::string str2 = "neighbors" + test_case + ".txt";
     std::string str3 = "triangles" + test_case + ".txt";

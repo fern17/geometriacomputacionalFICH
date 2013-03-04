@@ -5,8 +5,8 @@
 using namespace std;
 
 int main(int argc, char *argv[]) {
-	unsigned int horizontal = 10;
-	unsigned int vertical = 10;
+	unsigned int horizontal = 2;
+	unsigned int vertical = 2;
 	unsigned int maximo = horizontal*vertical;
 	unsigned int start = 100;
 	unsigned int step = 15;
@@ -15,7 +15,7 @@ int main(int argc, char *argv[]) {
 	if (file1.is_open()) {
 		file1<<maximo+3<<'\n';
 		//Agrega el triangulo envolvente
-		file1<<10<<' '<<10<<'\n'; //punto 0
+		file1<<50<<' '<<10<<'\n'; //punto 0
 		file1<<start+horizontal*step*mult<<' '<<start+vertical*step*mult*0.2<<'\n';
 		file1<<10<<' '<<start+vertical*step*mult<<'\n';
 		for (unsigned int i = 0; i < vertical; i++) {
@@ -57,17 +57,17 @@ int main(int argc, char *argv[]) {
 		for (unsigned int i = 0; i < vertical; i++) {
 			for (unsigned int j = 0; j < horizontal; j++) {
 				std::vector<unsigned int> vecinos;
-				if ((idx+1) % (horizontal+3) != 0) 
+				if ((idx-2) % (horizontal) != 0) 
 					vecinos.push_back(idx+1); //derecha
-				
-				if (((idx+1) % (horizontal+3) != 0) and idx+1+horizontal < maximo)
+				if (((idx-2) % (horizontal) != 0) and idx+1+horizontal < maximo)
 					vecinos.push_back(idx+1+horizontal); //arriba derecha
 				if (idx+horizontal < maximo)
 					vecinos.push_back(idx+horizontal); //arriba
-				if (((idx % (horizontal+3)) != 0) and idx > 0)
+				if ((idx-3) % horizontal != 0)
 					vecinos.push_back(idx-1); //izquierda
 				if (idx >= horizontal+3) {
-					if (((idx-1) % (horizontal+3) != 0) and idx > horizontal+1)
+					//if (((idx-1) % (horizontal+3) != 0) and idx > horizontal+1)
+					if ((idx-3) % horizontal != 0)
 						vecinos.push_back(idx-1-horizontal); //abajo izquierda
 					
 					vecinos.push_back(idx-horizontal); //abajo
@@ -86,19 +86,31 @@ int main(int argc, char *argv[]) {
 	
 	ofstream file3 ("triangles5.txt", ios::trunc);
 	if (file3.is_open()) {
-		file3<<0<<' '<<1<<' '<<2<<'\n';//triangulo envolvente
-		for (unsigned int i = 3; i < maximo-horizontal; i++) {
-			if ((i+1) % (horizontal+3) != 0) {
+		//file3<<0<<' '<<1<<' '<<2<<'\n';//triangulo envolvente
+		for (unsigned int i = 3; i < maximo-horizontal+3; i++) {
+			if ((i-2) % horizontal != 0) {
 				file3<<i<<' '<<i+1<<' '<<i+1+horizontal;
 				file3<<"\n";
 			}
 		}
-		for (unsigned int i = horizontal+3; i < maximo; i++) {
-			if ((i+1) % (horizontal+3) != 0) {
+		for (unsigned int i = horizontal+3; i < maximo+3; i++) {
+			if ((i-2) % horizontal != 0) {
 				file3<<i<<' '<<i-horizontal<<' '<<i+1;
 				file3<<"\n";
 			}
 		}
+
+        //Agregar triangulos definidos con los de afuera
+        //0 con todos los de abajo
+        for (unsigned int i = 3; i < horizontal+3-1; i++) {
+            file3<<0<<' '<<i+1<<' '<<i<<'\n';
+        }
+        //0 con todos los de la izquierda
+        for (unsigned int i = 3; i < (vertical-1)*horizontal; i+=horizontal){
+            file3<<0<<' '<<i<<' '<<i+horizontal<<'\n';
+        }
+        
+        file3.close();
 	}
 	return 0;
 }
