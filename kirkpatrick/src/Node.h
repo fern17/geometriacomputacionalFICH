@@ -16,7 +16,7 @@ class Node {
     void addChild(Node *new_child);     //Agrega un hijo
     void deleteChild(Node *child_to_delete);    //borra un hijo
     void print(unsigned int level);     //Muestra el triangulo tabulado a tantos niveles
-    bool search(Point P, TriangleStatic &ret_val, unsigned int pasos);  //Le pregunta si P esta dentro de si mismo. Y llama a sus hijos
+    bool search(Point P, std::vector<TriangleStatic> &ret_val, unsigned int pasos);  //Le pregunta si P esta dentro de si mismo. Y llama a sus hijos
 };
 
 #endif

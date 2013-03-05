@@ -105,6 +105,6 @@ void Kirkpatrick::print() {
 }
 
 //Busca un punto dentro de la estructura en tiempo logaritmico
-bool Kirkpatrick::searchPoint(Point P, TriangleStatic &ret_val) {
+bool Kirkpatrick::searchPoint(Point P, std::vector<TriangleStatic> &ret_val) {
     return this->root->search(P, ret_val, 0);
 }

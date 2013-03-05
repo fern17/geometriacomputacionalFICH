@@ -259,10 +259,12 @@ bool static sameSide(Point p1, Point p2, Point q1, Point q2) {
     float cp1 = crossProduct(q21, p1q1);
     float cp2 = crossProduct(q21, p2q1);
     float dot = cp1*cp2;
-    if (dot > 0) return true;
+    if (fabs(dot) < 0.00001 or dot > 0) return true;//>= para incluir fronteras
+    //if (dot > 0) return true;       //> para excluir fronteras
     else return false;
 }
 
+//Un punto esta dentro de un triangulo si y solo si esta del mismo lado de los 3 segmentos
 bool static pointInTriangle(Point P, Point Ta, Point Tb, Point Tc) {
     if (sameSide(P, Ta, Tb, Tc) and sameSide(P, Tb, Ta, Tc) and sameSide(P, Tc, Ta, Tb)) 
         return true;
@@ -270,12 +272,11 @@ bool static pointInTriangle(Point P, Point Ta, Point Tb, Point Tc) {
         return false;
 }
 
+//Se debe probar los 3 lados de T1 contra los 3 lados de T2
+//Si no se intersectan, probar 3 puntos de de T1 dentro de T2 y viceversa
 bool static triangleOverlap(TriangleStatic T1, TriangleStatic T2) {
-    //Se debe probar los 3 lados de T1 contra los 3 lados de T2
-    //Si no se intersectan, probar 3 puntos de de T1 dentro de T2 y viceversa
-    //
-    //
     if (T1 == T2) return true;
+    
     Point T1a = T1.p1;
     Point T1b = T1.p2;
     Point T1c = T1.p3;
@@ -283,26 +284,7 @@ bool static triangleOverlap(TriangleStatic T1, TriangleStatic T2) {
     Point T2b = T2.p2;
     Point T2c = T2.p3;
    
-
-    /*
-    sameSegment(T1a, T1b, T2a, T2b)
-    sameSegment(T1a, T1b, T2a, T2c)
-    sameSegment(T1a, T1b, T2b, T2c)
-
-    sameSegment(T1a, T1c, T2a, T2b)
-    sameSegment(T1a, T1c, T2a, T2c)
-    sameSegment(T1a, T1c, T2b, T2c)
-    
-    sameSegment(T1b, T1c, T2a, T2b)
-    sameSegment(T1b, T1c, T2a, T2c)
-    sameSegment(T1b, T1c, T2b, T2c)
-    */
-
-
     Point phantom;
-
-
-
 
     //Primero probamos los 3 lados de T1 contra los 3 lados de T2
     bool intersection;

@@ -17,7 +17,7 @@ class Kirkpatrick {
     void build(int max_steps = -1);                             //Inicializa el DAG y realiza las iteraciones llamando a step
     bool step();                                                //Realiza una iteracion del DAG
     void print();                                               //Imprime el arbol
-    bool searchPoint(Point P, TriangleStatic &ret_val);         //Le pregunta la nodo raiz si el punto esta dentro suyo y lanza la recursion
+    bool searchPoint(Point P, std::vector<TriangleStatic> &ret_val);         //Le pregunta la nodo raiz si el punto esta dentro suyo y lanza la recursion
 };
 
 #endif

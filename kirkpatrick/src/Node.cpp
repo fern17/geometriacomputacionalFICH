@@ -59,19 +59,22 @@ void Node::print(unsigned int level) {
 //Pregunta si P esta dentro mio. Si lo esta, llama a los hijos.
 //Si soy nodo hoja, retorno mi triangulo por parametro
 //El tercer parametro es para contar las comparaciones
-bool Node::search(Point P, TriangleStatic &ret_val, unsigned int pasos) {
+bool Node::search(Point P, std::vector<TriangleStatic> &ret_val, unsigned int pasos) {
     if (utils::pointInTriangle(P, this->triangle->p1, this->triangle->p2, this->triangle->p3)){
         //Este nodo es hoja
         if (this->child.empty()) {
-            ret_val = *this->triangle; //el valor de retorno es mi triangulo
+            ret_val.push_back(*this->triangle); //el valor de retorno es mi triangulo
             std::cout<<"Se hicieron "<<pasos<<" pasos para encontrar el punto\n"; //imprime la cantidad de comparaciones
             return true;                //retorna true para saber que se encontro
         }
         else {//Le pregunta por inclusion a todos sus hijos
+            bool found = false;
             for (unsigned int i = 0; i < this->child.size(); i++) {
+                //this->child[i]->search(P, ret_val, pasos+1+i);
                 if (this->child[i]->search(P, ret_val, pasos+1+i))
-                    return true;
+                    found = true;
             }
+            return found;
         }
     }
     return false; //no esta dentro de este triangulo

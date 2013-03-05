@@ -5,6 +5,7 @@
 #include <ctime>
 #include <cstdlib>
 #include <string>
+#include <vector>
 #include "Kirkpatrick.h"
 #include "TriangleStatic.h"
 static const unsigned int MAX_DEGREE = 7;
@@ -17,6 +18,7 @@ Kirkpatrick *kirkpatrickStructure; //Estructura de kirkpatrick
 //Usados para dibujar
 TriangleStatic *point_in_triangle;
 Point * point_pressed;
+std::vector<TriangleStatic> triangles_selected;
 
 //Cosas de OPENGL
 //Callback de Resize
@@ -51,12 +53,22 @@ void display_cb() {
     glColor3f(0,0,1);
     graph_to_draw->drawTriangles();
     */
-
+    
+    //Dibuja todos los triangulos presionados
+    if (not triangles_selected.empty()) {
+        for (unsigned int i = 0; i < triangles_selected.size(); i++) {
+            glColor3f(0.5, 0.1*i,0);
+            triangles_selected[i].draw();
+        }
+    }
+    
+    /*
     //Dibuja el triangulo presionado
     if (point_in_triangle) {
         glColor3f(1,1,0);
         point_in_triangle->draw();
     }
+    */
     //Dibuja el punto presionado
     if (point_pressed) {
         glColor3f(1,0,1);
@@ -106,19 +118,27 @@ void Mouse_cb(int button, int state, int x, int y){
         y = 480-y;
         Point P(x,y);
         delete point_pressed;
-        point_pressed = new Point(P);
-        delete point_in_triangle;
+        point_pressed = new Point(P);   //crea un nuevo punto con el punto presionado
+        delete point_in_triangle;       //borra el triangulo presionado
         
-        TriangleStatic ret_val;
+        //TriangleStatic ret_val;
         clock_t t_ini, t_end;
         double secs;
         t_ini = clock();
-
+        
+        triangles_selected.clear();     //limpia el vector
+        if (kirkpatrickStructure->searchPoint(P,triangles_selected)){
+            std::cout<<"Punto dentro de:\n";
+            for (unsigned int i = 0; i < triangles_selected.size(); i++) {
+                std::cout<<"\t"; triangles_selected[i].print(true);
+            }
+        }
+        /*
         if (kirkpatrickStructure->searchPoint(P, ret_val)) {
             //t_end = clock();   secs = (double (t_end - t_ini) );  std::cout<<"Tiempo "<<secs<<'\n';
             point_in_triangle = new TriangleStatic(ret_val);
             std::cout<<"Punto dentro de "; point_in_triangle->print(true);
-        }
+        }*/
         else {
             std::cout<<"Punto fuera de la triangulacion\n";
         }
@@ -141,6 +161,7 @@ void Motion_cb(int x, int y) {
     point_pressed = new Point(P);
     delete point_in_triangle;
 
+    /*
     TriangleStatic ret_val;
     if (kirkpatrickStructure->searchPoint(P, ret_val)) {
         point_in_triangle = new TriangleStatic(ret_val);
@@ -150,7 +171,7 @@ void Motion_cb(int x, int y) {
         std::cout<<"Punto fuera de la triangulacion\n";
     }
 //    glutPostRedisplay();
-   
+   */
 }
 
 void initialize() {
