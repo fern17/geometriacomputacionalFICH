@@ -9,7 +9,7 @@ int main(int argc, char *argv[]) {
 	unsigned int vertical = 2;
 	unsigned int maximo = horizontal*vertical;
 	unsigned int start = 100;
-	unsigned int step = 15;
+	unsigned int step = 100;
 	float mult = 2.5;
 	ofstream file1 ("points5.txt", ios::trunc);
 	if (file1.is_open()) {
@@ -40,7 +40,7 @@ int main(int argc, char *argv[]) {
 		
 		//punto 1
 		file2<<2<<' ';
-		for (int i = maximo+3-1; i > 0; i-=10){
+		for (int i = maximo+3-1; i > 2; i -= vertical){
 			file2<<i<<' ';
 		}
 		file2<<0<<' ';
@@ -59,9 +59,9 @@ int main(int argc, char *argv[]) {
 				std::vector<unsigned int> vecinos;
 				if ((idx-2) % (horizontal) != 0) 
 					vecinos.push_back(idx+1); //derecha
-				if (((idx-2) % (horizontal) != 0) and idx+1+horizontal < maximo)
+				if (((idx-2) % (horizontal) != 0) and idx+1+horizontal <= maximo+3)
 					vecinos.push_back(idx+1+horizontal); //arriba derecha
-				if (idx+horizontal < maximo)
+				if (idx+horizontal <= maximo+3)
 					vecinos.push_back(idx+horizontal); //arriba
 				if ((idx-3) % horizontal != 0)
 					vecinos.push_back(idx-1); //izquierda
