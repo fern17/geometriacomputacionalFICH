@@ -1,0 +1,63 @@
+Aplicación de muestra de la implementación y uso de la Estructura de Kirkpatrick para la ubicación de puntos en grafos planos 2D (sólo triangulaciones)
+-------------------------
+
+Geometría Computacional. UNL-FICH 2012-2013
+Autor: Fernando Nellmeldin
+
+--------ARCHIVOS---------
+La aplicación consta de las siguientes clases:
+  * Point: representa un punto en el plano. Sólo tiene 2 coordenadas X e Y, y algunos métodos de comparación.
+  * Vertex: representa un vértice en el grafo. Además de almacenar el punto que representa, tiene punteros a sus vecinos y punteros a los triángulos de los que forma parte.
+  * Triangle: representa un triángulo en el grafo. Tiene punteros a los 3 vértices que lo define.
+  * Graph: representa un grafo plano 2D. Tiene un vector de Vertex que almacena todos los vértices del grafo, y un vector de Triangle que almacena todos los triángulos del grafo
+  * Node: representa un nodo en el DAG de la estructura de Kirkpatrick. Además, tiene un TriangleStatic que representa el triángulo que se almacena en el nodo Tiene punteros a todos sus hijos en la Estructura de Kirkpatrick
+  * TriangleStatic: representa un triángulo de 3 puntos (distinto al de la clase Triangle porque este no tiene punteros a nada)
+  * KirkpatrickStructure: representa la Estructura de Kirkpatrick, un grafo dirigido acíclico. Además de tener métodos de consulta y construcción, tiene un sólo puntero al Nodo raíz de la estructura.
+
+Además, se tiene dos archivos extra:
+  * main.cpp: Que maneja todo lo referente a OpenGL, carga los grafos y llama a la construcción de la estructura.
+  * utils.cpp: Que tiene varias funciones útiles que se usan en las diversas clases (punto en triángulo, diagonal válida, intersección de segmentos, etc.)
+
+--------FUNCIONES IMPORTANTES-----
+  * Graph::retriangulate: retriangula un polígono interno al grafo, agregando aristas y triángulos según corresponda
+  * Graph::deletePoint: borra un punto dado y retriangula el polígono que lo envolvía. Además borra todas las referencias a ese punto.
+  * Graph::kirkpatrickDeletion: dado un grado especificado, borra puntos de ese grado o menor y retriangula
+  * Graph::selectVertexToDelete: selecciona los vértices a eliminar del grafo
+  * KirkpatrickStructure::build: inicializa la estructura con 1 nodo raíz y como hijos todos los triángulos del grafo.
+  * KirkpatrickStructure::step: genera un nuevo nivel en la estructura, borrando puntos, cambiando hijos al triángulo del nivel superior y cambiando los padres del nivel i. Se llama al presionar el BOTON SECUNDARIO
+  * KirkpatrickStructure::searchPoint: pregunta al nodo raíz si el punto de búsqueda está en su interior y lanza la recursión a todos sus hijos. Retorna todos los triangulos que incluyen al punto. Se llama al presionar el BOTON PRIMARIO.
+  * Node::search: dado un punto, se fija si está dentro suyo, y si lo está, le pregunta a todos sus hijos, recursivamente, quién lo contiene. Retorna todos los triángulos hijos que contenían al punto.  
+  
+-------COMPILACION Y EJECUCION-------
+Para compilar la aplicación, se necesita tener Make, OpenGL y GLUT instalados. Se proporciona un archivo Makefile para compilación rápida.  
+ 
+Para ejecutar la aplicación en Linux, se debe acceder desde consola al directorio raíz y tipear:
+  ~$ ./kirkpatrick.bin
+Se pueden pasar 2 parámetros opcionales que se explicarán luego.
+
+--------INTERACCION---------
+Una vez abierta la aplicación, se presentan 2 ventanas:
+  * Grafo para búsqueda: aquí se usa el CLICK PRIMARIO para ubicar un punto en el plano y llamar a la función KirkpatrickStructure::searchPoint(P). Si la búsqueda tiene éxito (está dentro de la triangulación), se van a colorear los triángulos que incluyen al punto (1 si está dentro de un triángulo, 2 si está en una arista de algún triángulo interno, o más si coincide con un vértice del grafo). Además, por la consola se imprimirá cuántos pasos (es decir: comparaciones de punto en triángulo) se realizaron para ubicar el triángulo que contiene al punto.
+  * Grafo para iterar: aquí se usa el CLICK SECUNDARIO para realizar un paso de la Eliminación de Kirkpatrick. Al hacer click, se borran algunos puntos del grafo y se retriangula el grafo. Por consola se mostrará la nueva Estructura de Kirkpatrick (el grafo acíclico dirigido).
+
+En todo paso de la operación, por consola se muestra lo que se está haciendo. Ya sea eliminando un punto, retriangulando, calculando diagonales, etc. Existen más mensajes que se comentaron en el código para evitar el exceso de información.
+
+-------VARIACIONES----------
+La aplicación, al ejecutarse, lee 3 archivos por defecto:
+  * points1.txt: que tiene las coordenadas de los puntos (x = {0-640}, y = {0-480})
+  * neighbors1.txt: que tiene las vecindades de cada punto en points.txt
+  * triangles1.txt: que tiene los puntos que forman cada triángulo
+Alternativamente, se puede pasar por parámetro, al ejecutar el programa, un número entre 1-5 para cambiar el caso de prueba. Por ejemplo: ./kirkpatrick.bin 3, va a cargar los archivos points3.txt, neighbors3.txt y triangles3.txt.
+IMPORTANTE: la aplicación toma por defecto que los primeros 3 puntos del archivo points.txt son los del bounding triangle. Si no se respeta esto, la aplicación fallará.
+
+La aplicación, por defecto, elimina vértices de grado mayor a 10. Si se quiere cambiar este grado, se debe pasar por parámetro el grado elegido. Sin embargo, al utilizar esta opción, también se debe especificar el caso de prueba a leer. Por lo tanto, para leer el caso 3, con grado de eliminación 7, se debe tipear:
+  ~$ ./kirkpatrick.bin 3 7
+Opcionalmente, se pueden comentar las líneas 430-437 de Graph.cpp para evitar que se eliminen previamente los vértices que superan el grado especificado. Así, todos son inicialmente elegibles.
+
+Creación de nuevos casos de prueba:
+  * points.txt: se debe poner en la primer línea, la cantidad de puntos que se tienen. En las sucesivas líneas, se deben poner 2 números (enteros o flotantes) separados por espacio, que representan las coordenadas X e Y de cada punto. Los primeros 3 puntos DEBEN ser los del Bounding Triangle. Notar que la aplicación tiene resolución de 640x480, por lo que si se ponen puntos fuera de este marco, no se verán. 
+  * neighbors.txt: se debe poner, en cada línea J, los vecinos del punto J (indizados desde 0 hasta N-1) ordenados en forma contraria a las agujas del reloj y separados por espacios (esto es sumamente importante para el correcto funcionamiento del método).
+  * triangles.txt: se deben poner, en cada línea J, los 3 índices (indizados desde 0 hasta N-1) que forman el triángulo J, separados por espacios.
+
+  
+

@@ -426,7 +426,7 @@ std::vector<Vertex *> Graph::selectVertexToDelete(unsigned int max_degree) {
     
     std::list<Vertex>::iterator p = this->points.begin();
     //Primero marcamos todos los que tienen mayor al grado designado
-    /*
+    
     while (p != this->points.end()) {
         Vertex *current = &*p;
         if (current->degree >= max_degree) {//si supera el grado, lo marcamos
@@ -435,7 +435,7 @@ std::vector<Vertex *> Graph::selectVertexToDelete(unsigned int max_degree) {
         }
         p++;
     }
-    */
+    
     
     //en vertex_to_delete guardaremos los vertices que vamos a borrar
     std::vector<Vertex *> vertex_to_delete;

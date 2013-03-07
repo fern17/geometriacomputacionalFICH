@@ -31,7 +31,7 @@ bool static getLineIntersection(Point p0, Point p1, Point p2, Point p3, Point &i
     s2.x = p3.x - p2.x;     s2.y = p3.y - p2.y;
 
     float s, t;
-    float denominator = (-s2.x * s1.y + s1.x * s2.y);
+    float denominator = (-s2.x * s1.y + s1.x * s2.y);   //producto vectorial
     if (fabs(denominator) < 0.000001) //denominador igual a cero
         return false;
     s = (-s1.y * (p0.x - p2.x) + s1.x * (p0.y - p2.y)) / denominator;

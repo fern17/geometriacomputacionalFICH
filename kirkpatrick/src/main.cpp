@@ -108,12 +108,7 @@ void display_cb2() {
 }
 
 void Mouse_cb(int button, int state, int x, int y){
-    if (button==GLUT_MIDDLE_BUTTON and state==GLUT_DOWN){ // boton del medio, realiza una iteracion de kirkpatrick
-        kirkpatrickStructure->step();
-        kirkpatrickStructure->print();
-        glutPostRedisplay();
-    }
-    
+        
     if (button==GLUT_LEFT_BUTTON and state==GLUT_DOWN){ // boton izquierdo, ubica un punto
         y = 480-y;
         Point P(x,y);
